@@ -20,8 +20,8 @@
     (continue-st)
     )
 
-  (define-datatype simple-statement simple-statement?
-
+  (define-datatype compound-statement compound-statement?
+    ()
     )
 
   (define-datatype return-datatype return-datatype?
