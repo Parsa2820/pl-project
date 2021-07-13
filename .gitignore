@@ -6,4 +6,4 @@
 *.scm#*
 .#*.scm
 
-compiled/
+src/compiled/
