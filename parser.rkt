@@ -4,6 +4,8 @@
            (prefix-in : parser-tools/lex-sre)
            parser-tools/yacc)
 
+  (require "datatype.rkt")
+
   (define-lex-abbrevs
     (special-keyword (:or "and"       "for"       "return"   
                           "break"     "else"      "global"    "not"     
@@ -14,6 +16,7 @@
 
   (define python-lexer
     (lexer
+     (special-keyword  (string->symbol lexeme))
      ((:: (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))) ) (token-NUM (string->number lexeme)))
      ("True" (token-BOOLEAN #t))
      ("False" (token-BOOLEAN #f))
@@ -25,7 +28,6 @@
      ("and" (string->symbol lexeme))
      ("or" (string->symbol lexeme))
      ("not" (string->symbol lexeme))
-     (special-keyword  (string->symbol lexeme))
      ("(" (token-|(|))
      (")" (token-|)|))
      ("[" (token-|[|))
@@ -53,7 +55,7 @@
           (begin (display  (car subString)) (cons (python-lexer (open-input-string (car subString))) (lexSubString (cdr subString) listOfTokens ))))))
 
   (define lex-this (lambda (lexer input) (lambda () (lexer input))))
-  (define my-lexer (lex-this python-lexer (open-input-string "12; koskesh and krii; kiri == salam < kooni; True; 3; [salam aziam 45 63 True]; salam[2]; salam(6 3 kho); 10-238; kos+kir; salam(); salam; kir**4; +5; -13; kos*kir; kos/kir;")))
+  (define my-lexer (lex-this python-lexer (open-input-string "12; koskesh and krii; kiri == salam < kooni; True; 3; [salam aziam 45 63 True]; salam[2]; salam(6 3 kho); 10+238; kos+kir; salam(); salam; kir4; +5; 13; koskir; kos/kir;return 4;")))
 
 
   (my-lexer)
@@ -76,21 +78,84 @@
   (my-lexer)
   (my-lexer)
   (my-lexer)
-
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
+  (my-lexer)
   #|
-  
   (define python-parser
     (parser
-     (start )
-     (end )
+     (start st)
+     (end EOF)
      (error void)
-     (tokens )
-     ;(grammar (st (()) ()))
+     (tokens a et)
+     (grammar (st
+               ((return exp TERMINATE) (list $2))
+               ;()
+               ))
+     (grammar (exp
+               ((NUM) ($1))
+               ))
      )
     )
 
-  (define py-lexer (lex-this python-lexer (open-input-string "")))
+  (define py-lexer (lex-this python-lexer (open-input-string "return 4;")))
   (let ((parser-res (python-parser py-lexer))) parser-res)
-
-  |#
+|#
   )
