@@ -160,7 +160,7 @@
        ((pass TERMINATE) (pass-st))
        ((break TERMINATE) (break-st))
        ((continue TERMINATE) (continue-st))
-       ;((print |(|  |)|) ())
+       ((print |(|  |)|) ())
        )
       (compound-st
        ((def ID |(| params |)| : statements) ())
@@ -185,9 +185,55 @@
        ((comparison) (inversion-base $1))
        )
       (comparison
-       (() (comparison-compare $1 $3))
+       ((sum cosps) (comparison-compare $1 $3))
        ((sum) (comparison-base $1))
        )
+      (cosps
+       ((cosp) (compare-op-sum-pairs-base $1))
+       ((cosps cosp) (compare-op-sum-pairs-multi $2 $1)))
+      (cosp
+       ((== sum) (eq-sum $2))
+       ((< sum) (lt-sum $2))
+       ((> sum) (gt-sum $2))
+       )
+      (sum
+       ((sum + term) (sum-add $1 $3))
+       ((sum - term) (sum-subtract $1 $3))
+       ((term) (sum-base $1))
+       )
+      (term
+       ((term * factor) (term-multiplication $1 $3))
+       ((term / factor) (term-division $1 $3))
+       ((factor) (term-base $1))
+       )
+      (factor
+       ((+ factor) (factor-affirmation $2))
+       ((- factor) (factor-negation $2))
+       ((power) (factor-base $1))
+       )
+      (power
+       ((atom ** factor) (power-pow $1 $3))
+       ((primary) (power-base $1))
+       )
+      (primary
+       ((atom) (primary-base $1))
+       ((primary |[| exp |]|) (primary-lst-index $1 $3))
+       ((primary |(| |)|) (primary-call-function-no-args $1))
+       ((primary |(| arguments |)|) (primary-call-function $1 $3))
+       )
+      (arguments
+       ((exp) (arguments-base $1))
+       ((arguments , exp) (arguments-multi $3 $1))
+       )
+      (atom
+       (() ())
+       (() ())
+       (() ())
+       (() ())
+       (() ())
+       (() ())
+       )
+      ()
       )
      )
     )

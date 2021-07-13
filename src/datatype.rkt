@@ -199,6 +199,12 @@
      (val expressions?))
     )
 
+  (define-datatype lst lst?
+    (empty-lst)
+    (not-empty-lst
+     (exps expressions?))
+    )
+
   (define-datatype expressions expressions?
     (expressions-base
      (exp expression?))
