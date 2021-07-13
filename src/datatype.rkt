@@ -26,12 +26,12 @@
 
   (define-datatype simple-st simple-st?
     (assignment-st
-     (lhs identifier?)
+     (lhs symbol?)
      (rhs expression?))
     (return-st
      (return-type return-datatype?))
     (global-st
-     (id identifier?))
+     (id symbol?))
     (pass-st)
     (break-st)
     (continue-st)
@@ -41,15 +41,13 @@
 
   (define-datatype compound-st compound-st?
     (function-def-st
-     (name identifier?)
-     (parameters params?)
-     (sts statements?))
+     (func function-datatype?))
     (if-st
      (exp expression?)
      (sts-true statements?)
      (sts-false statements?))
     (for-st
-     (id identifier?)
+     (id symbol?)
      (exp expression?)
      (sts statements?))
     )
@@ -58,6 +56,17 @@
     (return-void)
     (return-exp
      (exp expression?))
+    )
+
+  (define-datatype function-datatype function-datatype?
+    (function-no-input
+     (name symbol?)
+     (sts statements?))
+    (function-with-input
+     (name symbol?)
+     (parameters params?)
+     (sts statements?)
+     )
     )
 
   (define-datatype params params?
@@ -70,7 +79,7 @@
   
   (define-datatype param-with-defualt param-with-defualt?
     (param-with-defualt-base
-     (id identifier?)
+     (id symbol?)
      (exp expression?))
     )
 
@@ -189,14 +198,14 @@
 
   (define-datatype atom atom?
     (atom-identifier
-     (id identifier?))
+     (id symbol?))
     (atom-bool
      (val boolean?))
     (atom-none)
     (atom-number
      (val number?))
     (atom-lst
-     (val expressions?))
+     (val lst?))
     )
 
   (define-datatype lst lst?
