@@ -67,38 +67,9 @@
   (define value-of-exp
     (lambda (exp)
       (cases expression exp
-        (expression-base (dis) (value-of-dis dis)))))
+        (expression-base 
 
-  (define value-of-dis
-    (lambda (dis)
-      (cases disjunction dis
-        (disjunction-base (con) (value-of-con con))
-        (disjuction-or (con dis) (or (value-of-dis dis) (value-of-con con))))))
-
-  (define value-of-con
-    (lambda (con)
-      (cases conjunction con
-        (conjuction-base (inv) (value-of-inv inv))
-        (conjunction-and (con inv) (and (value-of-inv inv) (value-of-con con))))))
-
-  (define value-of-inv
-    (lambda (inv)
-      (cases
-        (inversion-base (comp) (value-of-comp comp))
-        (inversion-not (inv) (not (value-of-inv inv))))))
-
-  
-
-  (define value-of-comp
-    (lambda (comp)
-      (cases
-          (comparison-compare (s com-op-sum-pair) (cases compare-op-sum-pair com-op-sum-pair
-                                                    (eq-sum (s2) (= s1 s2))
-                                                    (lt-sum (s2) (< s1 s2))
-                                                    (gt-sum (s2) (> s1 s2))))
-          (comparision-base (s) (value-of-sum s)))))
-
-  (define 
+         ))))
 
 
      
@@ -109,8 +80,6 @@
                              (cases simple-st st
                                (assignment (lhs rhs)
                                            (setref! (value-of-exp (exp->stmt rhs)) (apply-env lhs))
-                                           
-                                           
        
                                            ))
   
