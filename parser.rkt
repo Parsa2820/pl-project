@@ -2,60 +2,56 @@
 (require parser-tools/lex
          (prefix-in : parser-tools/lex-sre)
          parser-tools/yacc)
+(define-lex-abbrevs
+  (special-keyword (:or "and"       "for"       "return"   
+                        "break"     "else"      "global"    "not"     
+                        "if"        "or"          
+                        "continue"   "pass"       
+                        "def"      "in"        "print")))
 
 (define python-lexer
   (lexer
-   ((:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))) (token-NUM (string->number lexeme)))
+
+   
+   ((:: (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))) ) (token-NUM (string->number lexeme)))
    ("True" (token-BOOLEAN #t))
    ("False" (token-BOOLEAN #f))
    ("NONE" (token-NONE))
-   ((:& (:+ (char-range #\a #\z)) (:& (complement "True") (complement "not") (complement "False")) ) (token-ID lexeme))
-   ((:: "[" (:+ whitespace "True" "False" (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))) ) "]")
-    (token-LIST (lexSubString (string-split (substring lexeme 1 (- (string-length lexeme) 1))) '())))
-   ((:: (:+ (char-range #\a #\z)) "[" (:+ (char-range #\0 #\9)) "]") (token-PRIMARY-INDEX (lexSubString (string-split lexeme "[") '())))
-   ((:: (:+ (char-range #\a #\z)) "(" (:+ whitespace "True" "False" (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9))
-                                                                                                   (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))) ) ")") (token-PRIMARY-FUN (lexSubString (let ((splited (string-split lexeme "("))) (cons (car splited)
-                                                                                                                                                                                                                                                          (string-split (cadr splited)))) '())))
-   ((:: (:+ (char-range #\a #\z)) "(" ")") (token-PRIMARY-FUN (lexSubString (let ((splited (string-split lexeme "("))) (list (car splited))) '())))
-   ((:: (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))))
-        "**" (:or(:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))))
-    (token-POW (lexSubString (let ((splited (string-split lexeme "**")))  splited) '())) )
-   ((:: "+" (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))))
-    (token-FACTOR (let ((splited (string-split lexeme "+")))  (string->number (car splited)))))
-   ((:: "-" (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))))
-    (token-FACTOR  (let ((splited (string-split lexeme "-")))  (- 0 (string->number (car splited)))))) 
-   ((:: (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))) "*" (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))))
-    (token-TERM-MUL  (lexSubString (let ((splited (string-split lexeme "*")))  splited) '())))
-   ((:: (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))) "/" (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))))
-    (token-TERM-DIV  (lexSubString (let ((splited (string-split lexeme "/")))  splited) '())))
-   ((:: (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))) "+" (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))))
-    (token-ADD  (lexSubString (let ((splited (string-split lexeme "+")))  splited) '())))
-   ((:: (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))) "-" (:or (:+ (char-range #\a #\z)) (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))))
-    (token-SUB (lexSubString (let ((splited (string-split lexeme "-")))  splited) '())))
-   ("==" (token-COMPARETOR))
-   (">" (token-COMPARETOR))
-   ("<" (token-COMPARETOR))
-   ("not" (token-NOT))
-   ((:: (:or "True" "False" (char-range #\a #\z) (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))) (:+ (:or " == " " < " " > ")
-        (:or "True" "False" (char-range #\a #\z) (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9))))))
-        (token-COMPARISON (lexSubString (let ((splited (string-split lexeme)))  splited) '()) ))
-   ((:: "not " (:or "True" "False" (:+ (char-range #\a #\z)))) (token-INVERSION (lexSubString (string-split lexeme) '())  ))
-   
+   ((:: (:& (:+ (char-range #\a #\z)) (:& (complement "True") (complement "not") (complement "False"))) ) (token-ID lexeme) )
+   ("==" (string->symbol lexeme))
+   (">" (string->symbol lexeme))
+   ("<" (string->symbol lexeme))
+   ("and" (string->symbol lexeme))
+   ("or" (string->symbol lexeme))
+   ("not" (string->symbol lexeme))
+   (special-keyword  (string->symbol lexeme))
+   ("(" (token-|(|))
+   (")" (token-|)|))
+   ("[" (token-|[|))
+   ("]" (token-|]|))
+   ("+" (token-+))
+    
+   (";" (token-TERMINATE))
    (whitespace (python-lexer input-port))
    ((eof) (token-EOF))))
 
-(define-tokens a (NUM BOOLEAN ID LIST PRIMARY-INDEX PRIMARY-FUN POW FACTOR TERM-MUL TERM-DIV ADD SUB  COMPARISON INVERSION ))
-(define-empty-tokens b (EOF NONE NOT COMPARETOR))
+(define-tokens a (NUM BOOLEAN ID))
+(define-empty-tokens et
+  (and      for  NONE TERMINATE  EOF  return  == > < ** |(| |)| |[| |]| + - 
+            break     else      global  not     
+            if        or          
+            continue   pass       
+            def      in        print))
 
 (define lexSubString
   (lambda (subString listOfTokens)
     (if (null? subString)
         listOfTokens
-        (cons (python-lexer (open-input-string (car subString))) (lexSubString (cdr subString) listOfTokens )))))
+        (begin (display  (car subString)) (cons (python-lexer (open-input-string (car subString))) (lexSubString (cdr subString) listOfTokens ))))))
 
 
 (define lex-this (lambda (lexer input) (lambda () (lexer input))))
-(define my-lexer (lex-this python-lexer (open-input-string "12 not to kiri == salam < kooni True 3 [salam aziam 45 63 True] salam[2] salam(6 3 kho) 10-238 kos+kir salam() salam kir**4 +5 -13 kos*kir kos/kir")))
+(define my-lexer (lex-this python-lexer (open-input-string "12; koskesh and krii; kiri == salam < kooni; True; 3; [salam aziam 45 63 True]; salam[2]; salam(6 3 kho); 10-238; kos+kir; salam(); salam; kir**4; +5; -13; kos*kir; kos/kir;")))
 
 
 (my-lexer)
