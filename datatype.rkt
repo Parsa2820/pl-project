@@ -2,14 +2,16 @@
 
   (require (lib "eopl.ss" "eopl"))
 
+  (provide (all-defined-out))
+
   (define-datatype statement statement?
-    (simple
-     (st simple-statement?))
-    (compound
-     (st compound-statement?))
+    (statement-simple-st
+     (st simple-st?))
+    (statement-compound-st
+     (st compound-st?))
     )
 
-  (define-datatype simple-statement simple-statement?
+  (define-datatype simple-st simple-st?
     (assignment-st
      (lhs identifier?)
      (rhs expression?))
@@ -20,11 +22,11 @@
     (pass-st)
     (break-st)
     (continue-st)
-    (print
+    (print-st
      (vals (list-of-not-null atom?)))
     )
 
-  (define-datatype compound-statement compound-statement?
+  (define-datatype compound-st compound-st?
     (function-def-st
      (name identifier?)
      (params (list-of param-datatype?))
@@ -51,49 +53,50 @@
      (exp expression?))
     )
 
-  (define (expression? e)
-    (disjunction? e)
+  (define-datatype expression expression?
+    (expression-base
+     (dis disjunction?))
     )
 
   (define-datatype disjunction disjunction?
-    (base
+    (disjunction-base
      (con conjunction?))
-    (or
+    (disjunction-or
      (con conjunction?)
      (dis disjunction?))
     )
 
   (define-datatype conjunction conjunction?
-    (base
+    (conjunction-base
      (inv inversion?))
-    (and
+    (conjunction-and
      (con conjunction?)
      (inv inversion?))
     )
 
   (define-datatype inversion inversion?
-    (not
+    (inversion-not
      (inv inversion?))
-    (base
+    (inversion-base
      (com comparison?))
     )
 
   (define-datatype comparison comparison?
-    (compare
+    (comparison-compare
      (s sum?)
      (another-s (list-of-not-null compare-op-sum-pair?)))
-    (base
+    (comparison-base
      (s sum?))
     )
 
   (define-datatype sum sum?
-    (add
+    (sum-add
      (s sum?)
      (t term?))
-    (subtract
+    (sum-subtract
      (s sum?)
      (t term?))
-    (base
+    (sum-base
      (t term?))
     )
 
@@ -107,53 +110,53 @@
     )
 
   (define-datatype term term?
-    (multiplication
+    (term-multiplication
      (t term?)
      (f factor?))
-    (division
+    (term-division
      (t term?)
      (f factor?))
-    (base
+    (term-base
      (f factor?))
     )
 
   (define-datatype factor factor?
-    (affirmation
+    (factor-affirmation
      (f factor?))
-    (negation
+    (factor-negation
      (f factor?))
-    (base
+    (factor-base
      (p power?))
     )
 
   (define-datatype power power?
-    (pow
+    (power-pow
      (a atom?)
      (f factor?))
-    (base
+    (power-base
      (p primary?))
     )
 
   (define-datatype primary primary?
-    (base
+    (primary-base
      (a atom?))
-    (lst-index
+    (primary-lst-index
      (p primary?)
      (exp expression?))
-    (call-function
+    (primary-call-function
      (p primary?)
      (args (list-of expression?)))
     )
 
   (define-datatype atom atom?
-    (identifier
+    (atom-identifier
      (id identifier?))
-    (bool
+    (atom-bool
      (val boolean?))
-    (none)
-    (number
+    (atom-none)
+    (atom-number
      (val number?))
-    (lst
+    (atom-lst
      (val (list-of expression?)))
     )
   
@@ -164,5 +167,4 @@
           ((list-of pre) lst))
       )
     )
-  
   )
