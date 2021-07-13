@@ -20,6 +20,8 @@
     (pass-st)
     (break-st)
     (continue-st)
+    (print
+     (vals (list-of-not-null atom?)))
     )
 
   (define-datatype compound-statement compound-statement?
