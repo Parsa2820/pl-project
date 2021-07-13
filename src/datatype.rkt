@@ -4,6 +4,19 @@
 
   (provide (all-defined-out))
 
+  (define-datatype program program?
+    (program-base
+     (sts statements?))
+    )
+
+  (define-datatype statements statements?
+    (statements-base
+     (st statement?))
+    (statements-multi
+     (car-st statement?)
+     (cdr-st statements?))
+    )
+
   (define-datatype statement statement?
     (statement-simple-st
      (st simple-st?))
@@ -23,22 +36,22 @@
     (break-st)
     (continue-st)
     (print-st
-     (vals (list-of-not-null atom?)))
+     (vals (list-of atom?)))
     )
 
   (define-datatype compound-st compound-st?
     (function-def-st
      (name identifier?)
-     (params (list-of param-datatype?))
-     (statements (list-of-not-null statement?)))
+     (parameters params?)
+     (sts statements?))
     (if-st
      (exp expression?)
-     (statements-true (list-of-not-null statement?))
-     (statements-false (list-of-not-null statement?)))
+     (sts-true statements?)
+     (sts-false statements?))
     (for-st
      (id identifier?)
      (exp expression?)
-     (statements (list-of-not-null statement?)))
+     (sts statements?))
     )
 
   (define-datatype return-datatype return-datatype?
@@ -47,8 +60,16 @@
      (exp expression?))
     )
 
-  (define-datatype param-datatype param-datatype?
-    (param-with-defualt
+  (define-datatype params params?
+    (params-base
+     (param param-with-defualt?))
+    (params-multi
+     (car-param param-with-defualt?)
+     (cdr-param params?))
+    )
+  
+  (define-datatype param-with-defualt param-with-defualt?
+    (param-with-defualt-base
      (id identifier?)
      (exp expression?))
     )
@@ -84,7 +105,7 @@
   (define-datatype comparison comparison?
     (comparison-compare
      (s sum?)
-     (another-s (list-of-not-null compare-op-sum-pair?)))
+     (another-s compare-op-sum-pairs?))
     (comparison-base
      (s sum?))
     )
@@ -98,6 +119,14 @@
      (t term?))
     (sum-base
      (t term?))
+    )
+
+  (define-datatype compare-op-sum-pairs compare-op-sum-pairs?
+    (compare-op-sum-pairs-base
+     (cosp compare-op-sum-pair?))
+    (compare-op-sum-pairs-multi
+     (car-cosp compare-op-sum-pair?)
+     (cdr-cosp compare-op-sum-pairs?))
     )
 
   (define-datatype compare-op-sum-pair compare-op-sum-pair?
@@ -143,9 +172,19 @@
     (primary-lst-index
      (p primary?)
      (exp expression?))
+    (primary-call-function-no-args
+     (p primary?))
     (primary-call-function
      (p primary?)
-     (args (list-of expression?)))
+     (args arguments?))
+    )
+
+  (define-datatype arguments arguments?
+    (arguments-base
+     (exp expression?))
+    (arguments-multi
+     (car-arg expression?)
+     (cdr-arg arguments?))
     )
 
   (define-datatype atom atom?
@@ -157,14 +196,14 @@
     (atom-number
      (val number?))
     (atom-lst
-     (val (list-of expression?)))
+     (val expressions?))
     )
-  
-  (define (list-of-not-null pre)
-    (lambda (lst)
-      (if (null? lst)
-          #f
-          ((list-of pre) lst))
-      )
+
+  (define-datatype expressions expressions?
+    (expressions-base
+     (exp expression?))
+    (expression-multi
+     (car-exp expression?)
+     (cdr-exp expressions?))
     )
   )
