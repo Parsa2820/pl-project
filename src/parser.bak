@@ -33,11 +33,6 @@
      ("[" (token-|[|))
      ("]" (token-|]|))
      ("+" (token-+))
-     ("-" (token--))
-     ("*" (token-*))
-     ("**" (token-**))
-     ("/" (token-/))
-     
      (";" (token-TERMINATE))
      (whitespace (python-lexer input-port))
      ((eof) (token-EOF))
@@ -48,8 +43,8 @@
   
   (define-empty-tokens et
     (and      for  NONE TERMINATE  EOF  return  == > < ** |(| |)| |[| |]| + - 
-              break     else  *    global  not     
-              if        or    /      
+              break     else      global  not     
+              if        or          
               continue   pass       
               def      in        print))
 
@@ -60,7 +55,7 @@
           (begin (display  (car subString)) (cons (python-lexer (open-input-string (car subString))) (lexSubString (cdr subString) listOfTokens ))))))
 
   (define lex-this (lambda (lexer input) (lambda () (lexer input))))
-  (define my-lexer (lex-this python-lexer (open-input-string "12; koskesh and krii; koon-kir kiri == salam < kooni; True; 3; [salam aziam 45 63 True]; salam[2]; salam(6 3 kho); 10+238; kos+kir; salam(); salam; kir4; +5; 13; koskir; kos/kir;return 4;")))
+  (define my-lexer (lex-this python-lexer (open-input-string "12; koskesh and krii; kiri == salam < kooni; True; 3; [salam aziam 45 63 True]; salam[2]; salam(6 3 kho); 10+238; kos+kir; salam(); salam; kir4; +5; 13; koskir; kos/kir;return 4;")))
 
 
   (my-lexer)
