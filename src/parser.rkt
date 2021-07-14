@@ -6,6 +6,8 @@
   (require "datatype.rkt")
   (require "environment.rkt")
 
+  (provide (all-defined-out))
+
   (define-lex-abbrevs
     (special-keyword (:or "and"       "for"       "return"   
                           "break"     "else"      "global"    "not"     
@@ -61,7 +63,11 @@
           listOfTokens
           (begin (display  (car subString)) (cons (python-lexer (open-input-string (car subString))) (lexSubString (cdr subString) listOfTokens ))))))
 
-  (define lex-this (lambda (lexer input) (lambda () (lexer input))))
+  (define lex-this
+    (lambda (lexer input)
+      (lambda ()
+        (lexer input)))
+    )
   ;(define my-lexer (lex-this python-lexer (open-input-string "12; koskesh and krii; koon-kir kiri == salam < kooni; True; 3; [salam aziam 45 63 True]; salam[2]; salam(6 3 kho); 10+238; kos+kir; salam(); salam; kir4; +5; 13; koskir; kos/kir;return 4;")))
   (define my-lexer (lex-this python-lexer (open-input-string "a = 5;")))
 
