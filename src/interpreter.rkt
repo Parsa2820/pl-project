@@ -1,6 +1,7 @@
 (module interpreter racket
   
   (require (lib "eopl.ss" "eopl"))
+  (require "parser.rkt") 
   (require "datatype.rkt")
   (require "environment.rkt")
   (require "store.rkt")
@@ -131,24 +132,8 @@
                                                                                                      (eq-sum (s2) (=  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))
                                                                                                      (lt-sum (s2) (<  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))
                                                                                                      (gt-sum (s2) (>  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))))))
-      (comparison-base (s) (value-of-sum s env)))))
-  
-#|
-  (define value-of-comp
-    (lambda (comp env)
-      (cases comparison comp
-        (comparison-compare (s cosps) ())
-        (comparison-base (s) (value-of-sum s env)))))
-
-  (define value-of-compare-op-sum-pairs
-    (lambda (cosps env)
-      (cases compare-op-sum-pairs-base cosps
-        (compare-op-sum-pairs-base (cosp) (value-of-compare-op-sum-pair cosp env))
-        (compare-op-sum-pairs-multi (car-cosp cdr-cosp) ())
-        )
-      )
+      (comparison-base (s) (value-of-sum s env))))
     )
-|#
 
   (define value-of-sum
     (lambda (s-dt env)
@@ -196,7 +181,6 @@
         (power-pow (pa pf) (expt (value-of-atom pa env) (value-of-factor pf env)))
         (power-base (pprimary) (value-of-primary pprimary env)))))
 
-
   (define up-env-params
     (lambda (proc-params env)
       (cases params proc-params
@@ -217,16 +201,14 @@
         (expression-base (exp) (cases params proc-params)
 
                         ))))
-    |#  
-                                         
+    |#                                     
           
   (define call-no-input
     (lambda (function env)
       (cases function-datatype function
         (function-no-input (fun-name  fun-stmts saved-env)  (value-of-stmts fun-stmts saved-env))
         (else (void))))
-    ) 
-      
+    )       
 
   (define value-of-primary
     (lambda (pri env)
@@ -263,5 +245,17 @@
         (expressions-base (exp) (list (value-of-exp exp env)))
         (expressions-multi (car-exp cdr-exp)
                            (append (value-of-exps cdr-exp env) (list (value-of-exp car-exp env))))))
+    )
+
+  (define (evaluate-file path)
+    (run (file->string path))
+    )
+
+  (define (run pgm-string)
+    (define py-lexer (lex-this python-lexer (open-input-string pgm-string)))
+    (begin (initialize-store!)
+           (let ((parser-res (python-parser py-lexer)))
+              (value-of-program parser-res))
+           )
     )
 )

@@ -5,15 +5,8 @@
   (require "parser.rkt")
   (require "store.rkt")
 
-  (provide run)
-
-  (define (run pgm-string)
-    (define py-lexer (lex-this python-lexer (open-input-string pgm-string)))
-    (begin (initialize-store!)
-           (let ((parser-res (python-parser py-lexer)))
-              (value-of-program parser-res))
-              ;parser-res)
-           )
+  (define (main pgm-string)
+    (run pgm-string)
     )
 
   (run "a=[4,3,True];print(a,4); for i in a: b = i; print(b); ; print(b); pass; a = True * False; print(a);")
@@ -27,4 +20,8 @@
   (run "print(1);pass;print(2);")
   (displayln "")
   (run "le1=0*2;print(le1);le2=False*True;print(le2);")
+  (displayln "")
+  (run "a=5;if a == 6 : print(1);else:print(2);;")
+  (displayln "")
+  (evaluate-file "../sample/list.rktpy")
   )             
