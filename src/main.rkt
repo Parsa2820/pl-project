@@ -16,5 +16,5 @@
            )
     )
 
-  (run "a=True;b=False;c=[1, 2, 3];for i in c: print(i);;")
+  (run "a=True;b=False;c=[4];print(c);")
   )                           

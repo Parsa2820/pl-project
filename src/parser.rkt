@@ -94,7 +94,11 @@
        ((pass) (pass-st))
        ((break) (break-st))
        ((continue) (continue-st))
-       ((print |(| atom |)|) (print-st (list $3)))
+       ((print |(| atoms |)|) (print-st (list $3)))
+       )
+      (atoms
+       (() ())
+       (() ())
        )
       (return-statement
        ((return) (return-void))

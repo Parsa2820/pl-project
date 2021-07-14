@@ -1,4 +1,5 @@
 (module interpreter racket
+  
   (require (lib "eopl.ss" "eopl"))
   (require "datatype.rkt")
   (require "environment.rkt")
@@ -57,7 +58,12 @@
   (define value-of-for
     (lambda (id exp stmts env)
       (let ((expval (value-of-exp exp env)))
-          (if (not (null?  expval)) (begin (value-of-stmts stmts (extend-env id (car expval) env)) (value-of-for (id (cdr expval) env))) (void)))))
+          (if (null?  expval)
+              (void)
+              (begin
+                (value-of-for id (cdr expval) stmts env)
+                (value-of-stmts stmts (extend-env id (car expval) env))))))
+    )
 
   (define value-of-fun
     (lambda (func)
@@ -152,10 +158,16 @@
   (define up-env-params
     (lambda (proc-params env)
       (cases params proc-params
-        (params-base (param) (cases param-with-defualt param
-                               (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp env)) env))))
-        (params-multi (car-param cdr-param)  (up-env-params cdr-param (cases param-with-defualt car-param
-                                                                        (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp (env))) env))) )))))
+        (params-base (param) (up-env-param-with-default param env))
+        (params-multi (car-param cdr-param)
+                      (up-env-params cdr-param (up-env-param-with-default car-param)))))
+    )
+
+  (define up-env-param-with-default
+    (lambda (param env)
+      (cases param-with-defualt param
+        (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp env)) env))))
+    )
   #|
   (define up-env-params-exps
     (lambda (proc-params exps env)
