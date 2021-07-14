@@ -34,16 +34,37 @@
         (pass-st)
         (break-st)
         (continue-st)
-        (print-st))))
+        (print-st)))
+    )
 
   (define value-of-compound-st
-    (lambda (st)
+    (lambda (st env)
       (cases compound-st st
-        (
-        
-                             
+        (function-def-st (func) (value-of-func func))
+        (if-st (exp true-stmts false-stmts) (if (value-of-exp exp env) (value-of-stmts true-stmts env) (value-of-stmts flase-stmts env)))
+        (for-st (id exp stmts) (value-of-for id exp stmts env))))
+    )
+
+  (define value-of-for
+    (lambda (id exp stmts env)
+      (let ((expval (value-of-exp exp)))
+          (if (not (null?  expval)) (begin (value-of-stmts stmts (extend-env id (car expval) env)) (value-of-for (id (cdr expval) env))) (void)))))
+
+  (define value-of-fun
+    (lambda (func)
+      (cases func
+        (function-no-input (id stmts)
+
   
-                             
+        
+
+
+
+        
+
+ 
+  
+                            
                                    
 
  
