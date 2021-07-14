@@ -148,7 +148,7 @@
   
   (define python-parser
     (parser
-     (start st)
+     (start program)
      (end EOF)
      (error void)
      (tokens a et)
@@ -265,6 +265,6 @@
      )
     )
 
-  (define py-lexer-2 (lex-this python-lexer (open-input-string "def a(b=0,c=0):b=4;")))
+  (define py-lexer-2 (lex-this python-lexer (open-input-string "a = b;")))
   (let ((parser-res (python-parser py-lexer-2))) parser-res)
   )
