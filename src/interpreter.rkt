@@ -17,6 +17,13 @@
         (program-base (sts) (value-of-stmts sts global-env))))
     )
 
+#| TODO
+- return should be handled with flag, to stop prevent running following statements. Flag vanish at the end of function.
+- break is simular to the return, should be handled with flag. Flag vanish at the end of the for.
+- continue is simular to break, but flag will be reset after each loop.
+- all it left is function.
+|#
+
   (define value-of-stmts
     (lambda (stmts env)
       ;(if (and (deref (apply-env 'break)) (derref (apply-env 'continue)))
