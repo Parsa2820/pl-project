@@ -20,20 +20,20 @@
       ;(if (and (deref (apply-env 'break)) (derref (apply-env 'continue)))
           (cases statements stmts      
             (statements-base (st) (value-of-stmt st env))
-            (statements-multi (car-st cdr-st) (begin (value-of-stmt car-st env) (value-of-stmts cdr-st env)))))
+            (statements-multi (car-st cdr-st) (begin (value-of-stmts cdr-st env) (value-of-stmt car-st env)))))
     )
        
   (define value-of-stmt
     (lambda (stmt env)
       (cases statement stmt
         (statement-simple-st (st) (value-of-simple-st st env))
-        (statement-compound-st (st) (value-of-compound-st st))))
+        (statement-compound-st (st) (value-of-compound-st st env))))
     )
 
   (define value-of-simple-st
     (lambda (st env)
       (cases simple-st st
-        (assignment-st (lhs rhs) (set! global-env (extend-env lhs (newref (value-of-exp rhs global-env)) global-env)) )
+        (assignment-st (lhs rhs) (begin (set! global-env (extend-env lhs (newref (value-of-exp rhs global-env)) global-env)) (display global-env)))
         ;(return-st) ;(return-type) (value-of-return-type return-type))
         (global-st (id) (extend-env id (apply-env id global-env) env))
         (pass-st () (void))
@@ -56,7 +56,7 @@
 
   (define value-of-for
     (lambda (id exp stmts env)
-      (let ((expval (value-of-exp exp)))
+      (let ((expval (value-of-exp exp env)))
           (if (not (null?  expval)) (begin (value-of-stmts stmts (extend-env id (car expval) env)) (value-of-for (id (cdr expval) env))) (void)))))
 
   (define value-of-fun
@@ -86,7 +86,7 @@
     (lambda (inv env)
       (cases inversion inv
         (inversion-base (comp) (value-of-comp comp env))
-        (inversion-not (inv) (not (value-of-inv inv) env)))))
+        (inversion-not (inv) (not (value-of-inv inv env))))))
 
   (define value-of-comp
     (lambda (comp env)
@@ -136,11 +136,11 @@
 
   
   (define value-of-factor
-    (λ (f)
+    (λ (f env)
            (cases factor f
-             (factor-affirmation (ff) (value-of-factor ff))
-             (factor-negation (ff) (- 0 (value-of-factor ff)))
-             (factor-base (fp) (value-of-power fp)))))
+             (factor-affirmation (ff) (value-of-factor ff env))
+             (factor-negation (ff) (- 0 (value-of-factor ff env)))
+             (factor-base (fp) (value-of-power fp env)))))
 
   (define value-of-power
     (lambda (p env)
@@ -189,18 +189,18 @@
   (define value-of-atom
     (lambda (_atom env)
       (cases atom _atom
-        (atom-identifier (id) (apply-env id env))
+        (atom-identifier (id) (begin (display env) (deref (apply-env id global-env))))
         (atom-bool (val) val)
         (atom-none () null)
         (atom-number (val) val)
-        (atom-lst (val) (value-of-lst val))))
+        (atom-lst (val) (value-of-lst val env))))
     )
 
   (define value-of-lst
     (lambda (_lst env)
       (cases lst _lst
         (empty-lst () '())
-        (not-empty-lst (exps) (value-of-exps exps))))
+        (not-empty-lst (exps) (value-of-exps exps env))))
     )
 
   (define value-of-exps

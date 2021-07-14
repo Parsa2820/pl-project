@@ -17,13 +17,12 @@
     )
 
   (define apply-env
-    (lambda (env search-sym)
+    (lambda (search-sym env)
       (cases environment env
         [empty-env () null]
         [extended-env (bvar bval saved-env)
                       (if (eqv? search-sym bvar)
                           bval
-                          (apply-env saved-env search-sym))]))
+                          (apply-env search-sym saved-env))]))
     )
   )
-    

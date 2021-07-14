@@ -3,14 +3,18 @@
   (require "datatype.rkt")
   (require "interpreter.rkt")
   (require "parser.rkt")
+  (require "store.rkt")
 
   (provide run)
 
   (define (run pgm-string)
     (define py-lexer (lex-this python-lexer (open-input-string pgm-string)))
-    (let ((parser-res (python-parser py-lexer)))
-      (value-of-program parser-res))
+    (begin (initialize-store!)
+           (let ((parser-res (python-parser py-lexer)))
+              (value-of-program parser-res))
+             ;parser-res)
+           )
     )
 
-  (run "print(4);")
+  (run "a=True;b=False;c=[1, 2, 3];for i in c: print(i);;")
   )                           
