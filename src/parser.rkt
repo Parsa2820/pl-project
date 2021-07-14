@@ -3,8 +3,8 @@
   (require parser-tools/lex
            (prefix-in : parser-tools/lex-sre)
            parser-tools/yacc)
-
   (require "datatype.rkt")
+  (require "environment.rkt")
 
   (define-lex-abbrevs
     (special-keyword (:or "and"       "for"       "return"   
@@ -178,7 +178,7 @@
        ((return exp) (return-exp $2))
        )
       (compound-st
-       ((function) (function-def-st $1))
+       ((function) (function-def-st $1 (empty-env)))
        ((if exp : sts else : sts) (if-st $2 $4 $7))
        ((for ID in exp : sts) (for-st $2 $4 $6))
        )

@@ -1,6 +1,7 @@
 (module datatype racket
 
   (require (lib "eopl.ss" "eopl"))
+  (require "environment.rkt")
 
   (provide (all-defined-out))
 
@@ -41,7 +42,8 @@
 
   (define-datatype compound-st compound-st?
     (function-def-st
-     (func function-datatype?))
+     (func function-datatype?)
+     (saved-env environment?))
     (if-st
      (exp expression?)
      (sts-true statements?)

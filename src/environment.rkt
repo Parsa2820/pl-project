@@ -1,5 +1,6 @@
 (module environment racket
   (require (lib "eopl.ss" "eopl"))
+  (require "store.rkt")
   
   (provide (all-defined-out))
   
@@ -23,9 +24,11 @@
   (define apply-env
     (lambda (env search-sym)
       (cases environment env
-        [extend-env (bvar bval saved-env) (if (eqv? search-sym bvar)
-                                              bval
-                                              (apply-env saved-env search-sym))]))
+        [empty-env () null]
+        [extended-env (bvar bval saved-env)
+                      (if (eqv? search-sym bvar)
+                          bval
+                          (apply-env saved-env search-sym))]))
     )
   )
     
