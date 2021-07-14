@@ -62,8 +62,8 @@
           (begin (display  (car subString)) (cons (python-lexer (open-input-string (car subString))) (lexSubString (cdr subString) listOfTokens ))))))
 
   (define lex-this (lambda (lexer input) (lambda () (lexer input))))
-  (define my-lexer (lex-this python-lexer (open-input-string "12; koskesh and krii; koon-kir kiri == salam < kooni; True; 3; [salam aziam 45 63 True]; salam[2]; salam(6 3 kho); 10+238; kos+kir; salam(); salam; kir4; +5; 13; koskir; kos/kir;return 4;")))
-
+  ;(define my-lexer (lex-this python-lexer (open-input-string "12; koskesh and krii; koon-kir kiri == salam < kooni; True; 3; [salam aziam 45 63 True]; salam[2]; salam(6 3 kho); 10+238; kos+kir; salam(); salam; kir4; +5; 13; koskir; kos/kir;return 4;")))
+  (define my-lexer (lex-this python-lexer (open-input-string "a = 5;")))
 
   (my-lexer)
   (my-lexer)
@@ -265,6 +265,6 @@
      )
     )
 
-  (define py-lexer (lex-this python-lexer (open-input-string "return 4;")))
-  (let ((parser-res (python-parser py-lexer))) parser-res)
+  (define py-lexer-2 (lex-this python-lexer (open-input-string "def a(b=0,c=0):b=4;")))
+  (let ((parser-res (python-parser py-lexer-2))) parser-res)
   )
