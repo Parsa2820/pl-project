@@ -19,11 +19,17 @@
   (define python-lexer
     (lexer
      (special-keyword  (string->symbol lexeme))
-     ((:: (:or (:+ (char-range #\0 #\9)) (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))) ) (token-NUM (string->number lexeme)))
+     #| ; old identifier
+     ((:: (:& (:+ (char-range #\a #\z))
+              (:& (complement "True") (complement "not") (complement "False"))))
+      (token-ID (string->symbol lexeme)))
+     |#
+     ((:: (:or (:+ (char-range #\0 #\9))
+               (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))))
+      (token-NUM (string->number lexeme)))
      ("True" (token-BOOLEAN #t))
      ("False" (token-BOOLEAN #f))
      ("NONE" (token-NONE))
-     ((:: (:& (:+ (char-range #\a #\z)) (:& (complement "True") (complement "not") (complement "False"))) ) (token-ID (string->symbol lexeme)) )
      ("==" (string->symbol lexeme))
      (">" (string->symbol lexeme))
      ("<" (string->symbol lexeme))
@@ -45,6 +51,9 @@
      (";" (token-TERMINATE))
      (whitespace (python-lexer input-port))
      ((eof) (token-EOF))
+     ((:: (:or (:or (:/ #\A #\Z) (:/ #\a #\z)) "_")
+          (:* (:or (:or (:/ #\A #\Z) (:/ #\a #\z)) (:/ #\0 #\9) "_")))
+      (token-ID (string->symbol lexeme)))
      )
     )
 
@@ -61,7 +70,9 @@
     (lambda (subString listOfTokens)
       (if (null? subString)
           listOfTokens
-          (begin (display  (car subString)) (cons (python-lexer (open-input-string (car subString))) (lexSubString (cdr subString) listOfTokens ))))))
+          (begin (display (car subString))
+                 (cons (python-lexer (open-input-string (car subString)))
+                       (lexSubString (cdr subString) listOfTokens ))))))
 
   (define lex-this
     (lambda (lexer input)

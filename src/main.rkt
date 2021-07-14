@@ -16,5 +16,7 @@
            )
     )
 
-  (run "a=[4,3,True];print(a,4); for i in a: b = i; print(b); ; print(b); pass; a = 6; print(a);")
-  )                           
+  (run "a=[4,3,True];print(a,4); for i in a: b = i; print(b); ; print(b); pass; a = True * False; print(a);")
+  (displayln "")
+  (run "e1=[1,2];print(e1);")
+  )             

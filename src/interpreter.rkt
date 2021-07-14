@@ -153,17 +153,31 @@
   (define value-of-sum
     (lambda (s-dt env)
       (cases sum s-dt
-        (sum-add (s t) (+ (value-of-sum s env) (value-of-term t env) ))
+        (sum-add (s t) (+pro (value-of-sum s env) (value-of-term t env) ))
         (sum-subtract (s t) (- (value-of-sum s env) (value-of-term t env) ) )         
         (sum-base (t) (value-of-term t env)))))
+
+  (define (+pro a b)
+    (cond
+      [(and (boolean? a) (boolean? b)) (or a b)]
+      [(and (number? a) (number? b)) (+ a b)]
+      [(and (list? a) (list? b)) (append a b)]
+      )
+    )
 
   (define value-of-term
     (lambda (t env)
       (cases term t
-        (term-multiplication (tt tf)  (* (value-of-term tt env) (value-of-factor tf env)))
+        (term-multiplication (tt tf)  (*pro (value-of-term tt env) (value-of-factor tf env)))
         (term-division (tt tf)  (/ (value-of-term tt env) (value-of-factor tf env)))
         (term-base (tf)   (value-of-factor tf env)))))
 
+  (define (*pro a b)
+    (cond
+      [(and (boolean? a) (boolean? b)) (and a b)]
+      [(and (number? a) (number? b)) (* a b)]
+      )
+    )
   
   (define value-of-factor
     (λ (f env)
