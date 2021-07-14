@@ -43,15 +43,30 @@
         (print-st (vals) (print-atoms-lst vals env))
         (else (void))))
     )
-
+  
   (define (print-atoms-lst atoms-lst env)
     (cond
       [(null? atoms-lst) (void)]
       [else
        (begin
-         (display (value-of-atom (car atoms-lst) env))
+         (print-atom (value-of-atom (car atoms-lst) env))
          (display " ")
          (print-atoms-lst (cdr atoms-lst) env))])
+    )
+
+  (define (print-atom a)
+    (cond
+      [(list? a) (begin (display "[") (print-atom-lst a) (display "]"))]
+      [(boolean? a) (if a (display "True") (display "False"))]
+      [else (display a)]
+      )
+    )
+
+  (define (print-atom-lst lst)
+    (if (null? lst)
+        (void)
+        (begin
+          (print-atom (car lst)) (if (null? (cdr lst)) (void) (display ", ")) (print-atom-lst (cdr lst))))              
     )
 
   ;(define value-of-return

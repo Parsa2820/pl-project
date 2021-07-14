@@ -16,5 +16,5 @@
            )
     )
 
-  (run "a=[4,3,True,5];print(a,4);")
+  (run "a=[4,3,True,    5, 6+1];print(1, 3, a);")
   )                           
