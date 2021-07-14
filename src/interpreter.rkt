@@ -40,8 +40,18 @@
         (pass-st () (void))
         ;(break-st)
         ;(continue-st)
-        (print-st (vals) (display (value-of-atom (car vals) env)))
+        (print-st (vals) (print-atoms-lst vals env))
         (else (void))))
+    )
+
+  (define (print-atoms-lst atoms-lst env)
+    (cond
+      [(null? atoms-lst) (void)]
+      [else
+       (begin
+         (display (value-of-atom (car atoms-lst) env))
+         (display " ")
+         (print-atoms-lst (cdr atoms-lst) env))])
     )
 
   ;(define value-of-return
@@ -220,6 +230,6 @@
       (cases expressions _exps
         (expressions-base (exp) (list (value-of-exp exp env)))
         (expressions-multi (car-exp cdr-exp)
-                           (cons (value-of-exp car-exp env) (value-of-exps cdr-exp env)))))
+                           (append (value-of-exps cdr-exp env) (list (value-of-exp car-exp env))))))
     )
 )

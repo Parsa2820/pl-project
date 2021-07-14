@@ -94,11 +94,11 @@
        ((pass) (pass-st))
        ((break) (break-st))
        ((continue) (continue-st))
-       ((print |(| atoms |)|) (print-st (list $3)))
+       ((print |(| atoms |)|) (print-st $3))
        )
       (atoms
-       (() ())
-       (() ())
+       ((atom) (list $1))
+       ((atoms |,| atom) (append $1 (list $3)))
        )
       (return-statement
        ((return) (return-void))
@@ -192,6 +192,6 @@
      )
     )
 
-  (define py-lexer-2 (lex-this python-lexer (open-input-string "a = 5; b =4;")))
-  (let ((parser-res (python-parser py-lexer-2))) parser-res)
+  ;(define py-lexer-2 (lex-this python-lexer (open-input-string "a = 5; b =4;")))
+  ;(let ((parser-res (python-parser py-lexer-2))) parser-res)
   )

@@ -12,9 +12,9 @@
     (begin (initialize-store!)
            (let ((parser-res (python-parser py-lexer)))
               (value-of-program parser-res))
-             ;parser-res)
+              ;parser-res)
            )
     )
 
-  (run "a=True;b=False;c=[4];print(c);")
+  (run "a=[4,3,True,5];print(a,4);")
   )                           
