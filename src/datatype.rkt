@@ -217,7 +217,7 @@
   (define-datatype expressions expressions?
     (expressions-base
      (exp expression?))
-    (expression-multi
+    (expressions-multi
      (car-exp expression?)
      (cdr-exp expressions?))
     )

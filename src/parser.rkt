@@ -32,7 +32,8 @@
      (")" (token-|)|))
      ("[" (token-|[|))
      ("]" (token-|]|))
-     ("," (token-,))
+     ("," (token-|,|))
+     (":" (token-:))
      ("+" (token-+))
      ("=" (token-=))
      ("-" (token--))
@@ -48,7 +49,7 @@
   (define-tokens a (NUM BOOLEAN ID))
   
   (define-empty-tokens et
-    (and      for  NONE TERMINATE  EOF  return  == > < ** |(| |)| |[| |]| + - = ,
+    (and      for  NONE TERMINATE  EOF  return  == > < ** |(| |)| |[| |]| + - = |,| :
               break     else  *    global  not     
               if        or    /      
               continue   pass       
@@ -187,7 +188,7 @@
        )
       (params
        ((ID = exp) (params-base (param-with-defualt-base $1 $3)))
-       ((params , ID = exp) (params-multi (param-with-defualt-base $3 $5) $1)) 
+       ((params |,| ID = exp) (params-multi (param-with-defualt-base $3 $5) $1)) 
        )
       (exp
        ((disjunction) (expression-base $1))
@@ -205,7 +206,7 @@
        ((comparison) (inversion-base $1))
        )
       (comparison
-       ((sum cosps) (comparison-compare $1 $3))
+       ((sum cosps) (comparison-compare $1 $2))
        ((sum) (comparison-base $1))
        )
       (cosps
@@ -243,12 +244,12 @@
        )
       (arguments
        ((exp) (arguments-base $1))
-       ((arguments , exp) (arguments-multi $3 $1))
+       ((arguments |,| exp) (arguments-multi $3 $1))
        )
       (atom
        ((ID) (atom-identifier $1))
        ((BOOLEAN) (atom-bool $1))
-       ((NONE) (atome-none))
+       ((NONE) (atom-none))
        ((NUM) (atom-number $1))
        ((lst) (atom-lst $1))
        )
@@ -258,7 +259,7 @@
        )
       (exps
        ((exp) (expressions-base $1))
-       ((exps , exp) (expressions-multi $3 $1))
+       ((exps |,| exp) (expressions-multi $3 $1))
        )
       )
      )
