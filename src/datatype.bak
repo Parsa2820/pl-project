@@ -61,8 +61,7 @@
   (define-datatype function-datatype function-datatype?
     (function-no-input
      (name symbol?)
-     (sts statements?)
-     )
+     (sts statements?))
     (function-with-input
      (name symbol?)
      (parameters params?)

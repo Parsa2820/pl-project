@@ -1,50 +1,16 @@
 
-(module interpreter racket
+(module main racket
   (include "datatype.rkt")
   (require (lib "eopl.ss" "eopl"))
-  (define global-env (empty-env))
-
-  (define value-of-program
-    (lambda (prgm env)
-      (cases program prgm
-        (program-base (sts) (value-of-stmts sts env))))
-    )
-
   
+
   (define value-of-stmts
     (lambda (stmts env)
-      (if (and (deref (apply-env 'break)) (derref (apply-env 'continue)))
-          (cases statements stmts      
-            (statements-base (st) (value-of-stmt st env))
-            (statements-multi (car-st cdr-st) (begin (value-of-stmt car-st env) (value-of-stmts cdr-st env)))))))
-
-       
-  (define value-of-stmt
-    (lambda (stmt env)
-      (cases statement stmt
-        (statement-simple-st (st) (value-of-simple-st st))
-        (statement-compound-st (st) (value-of-compound-st st)))))
-
-  (define value-of-simple-st
-    (lambda (st env)
-      (cases simple-st st
-        (assignment-st (lhs rhs) (if (null? env) (extend-env lhs (newref (value-of-exp rhs)) global-env) (extend-env lhs (newref (value-of-exp rhs)))))
-        (return-st (return-type) (value-of-return-type return-type))
-        (global-st (id) (extend-env id (apply-env id global-env) env))
-        (pass-st)
-        (break-st)
-        (continue-st)
-        (print-st))))
-
-  (define value-of-compound-st
-    (lambda (st)
-      (cases compound-st st
-        (
-        
-                             
+      (cases statements stmts
+        (statements-base (st) (value-of-stmt st env))
+        (statements-multi (car-st cdr-st) (begin (value-of-stmt car-st env) (value-of-stmts cdr-stenv))))))
+           
   
-                             
-                                   
 
  
   (define value-of-exp
@@ -68,7 +34,7 @@
     (lambda (inv env)
       (cases inversion inv
         (inversion-base (comp) (value-of-comp comp env))
-        (inversion-not (inv) (not (value-of-inv inv) env)))))
+        (inversion-not (inv) (not (value-of-inv inv)env)))))
 
   
 
@@ -118,25 +84,21 @@
 
   (define up-env-params
     (lambda (proc-params env)
-      (cases params proc-params
-        (parmas-base (param) (cases param-with-defualt param
-                               (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp env)) env))))
-        (params-multi (car-param cdr-param)  (up-env-params cdr-param (cases param-with-defualt car-param
-                                                                        (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp (env))) env))) )))))
+       (cases params proc-params
+         (parmas-base (param) (cases param-with-defualt param
+                                (param-with-defualt-base (id exp) (extend-env lhs (newref (value-of-exp rhs env)) env))))
+         (params-multi (car-param cdr-param)  (up-env-params cdr-param (cases param-with-defualt car-param
+                                                      (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp env)) env))) )))))
 
   (define up-env-params-exps
     (lambda (proc-params exps env)
-      (cases expression exps
-        (expression-base (exp) (cases params proc-params)
-
-                        ))))
       
                                          
           
-  (define call-no-input
-    (lambda (function env)
-      (cases function-datatype function
-        (function-no-input (fun-name  fun-stmts)  (value-of stmts))))) 
+  (define call
+    (lambda (function exps env)
+      (cases proc function
+        (py-proc (proc-name proc-params proc-stmts)   (value-of-exps exps (up-env-params-exps proc-params exps (up-env-params proc-params env)) ))))) 
       
 
   (define value-of-primary
@@ -144,11 +106,19 @@
       (cases primary pri
         (primary-base (pa) (value-of-atom pa env))
         (primary-lst-index (pp pe) (list-ref (value-of-primary pp env) (value-of-exp pe env)))
-        (primary-call-function-no-args (pp) (call-no-input (value-of-primary pp env)  env))
+        (primary-call-function-no-args (pp) (call (value-of-primary pp env) '() env))
         (primary-call-function (pp pa))
-        )
-      )
-    )
         
 
 
+     
+        (define value-of-stmt
+          (lambda (stmt env)
+            (cases statement statement
+              (statement-simple-st (st)
+                                   (cases simple-st st
+                                     (assignment (lhs rhs)
+                                                 (extend-env lhs (newref (value-of-exp rhs env)) env)                                           ))
+  
+                             
+                                   
