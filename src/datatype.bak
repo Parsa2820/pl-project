@@ -42,7 +42,8 @@
 
   (define-datatype compound-st compound-st?
     (function-def-st
-     (func function-datatype?))
+     (func function-datatype?)
+     (saved-env environment?))
     (if-st
      (exp expression?)
      (sts-true statements?)
@@ -63,13 +64,11 @@
     (function-no-input
      (name symbol?)
      (sts statements?)
-     (saved-env environment?)
      )
     (function-with-input
      (name symbol?)
      (parameters params?)
      (sts statements?)
-     (saved-env environment?)
      )
     )
 
