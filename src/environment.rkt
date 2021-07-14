@@ -3,11 +3,6 @@
   (require "store.rkt")
   
   (provide (all-defined-out))
-  
-  (define report-invalid-reference
-    (lambda (ref the-store)
-      (error "invalid refrence"))
-    )
 
   (define-datatype environment environment?
     [empty-env]

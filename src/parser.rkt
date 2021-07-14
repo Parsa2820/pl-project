@@ -177,7 +177,7 @@
        ((pass) (pass-st))
        ((break) (break-st))
        ((continue) (continue-st))
-       ;((print |(|  |)|) ())
+       ((print |(| atom |)|) (print-st (list $3)))
        )
       (return-statement
        ((return) (return-void))
@@ -271,6 +271,6 @@
      )
     )
 
-  (define py-lexer-2 (lex-this python-lexer (open-input-string "a = b;")))
-  (let ((parser-res (python-parser py-lexer-2))) parser-res)
+  ;(define py-lexer-2 (lex-this python-lexer (open-input-string "a = b;")))
+  ;(let ((parser-res (python-parser py-lexer-2))) parser-res)
   )

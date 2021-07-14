@@ -1,40 +1,46 @@
-
 (module interpreter racket
-  (include "datatype.rkt")
   (require (lib "eopl.ss" "eopl"))
+  (require "datatype.rkt")
+  (require "environment.rkt")
+  (require "store.rkt")
+
+  (provide (all-defined-out))
+  
   (define global-env (empty-env))
+  (define local-envs (list))
 
   (define value-of-program
-    (lambda (prgm env)
+    (lambda (prgm)
       (cases program prgm
-        (program-base (sts) (value-of-stmts sts env))))
+        (program-base (sts) (value-of-stmts sts global-env))))
     )
 
-  
   (define value-of-stmts
     (lambda (stmts env)
       ;(if (and (deref (apply-env 'break)) (derref (apply-env 'continue)))
           (cases statements stmts      
             (statements-base (st) (value-of-stmt st env))
-            (statements-multi (car-st cdr-st) (begin (value-of-stmt car-st env) (value-of-stmts cdr-st env))))))
-
+            (statements-multi (car-st cdr-st) (begin (value-of-stmt car-st env) (value-of-stmts cdr-st env)))))
+    )
        
   (define value-of-stmt
     (lambda (stmt env)
       (cases statement stmt
-        (statement-simple-st (st) (value-of-simple-st st))
-        (statement-compound-st (st) (value-of-compound-st st)))))
+        (statement-simple-st (st) (value-of-simple-st st env))
+        (statement-compound-st (st) (value-of-compound-st st))))
+    )
 
   (define value-of-simple-st
     (lambda (st env)
       (cases simple-st st
-        (assignment-st (lhs rhs) (set! global-env (extend-env lhs (newref (value-of-exp rhs)) global-env)) )
-        (return-st) ;(return-type) (value-of-return-type return-type))
+        (assignment-st (lhs rhs) (set! global-env (extend-env lhs (newref (value-of-exp rhs global-env)) global-env)) )
+        ;(return-st) ;(return-type) (value-of-return-type return-type))
         (global-st (id) (extend-env id (apply-env id global-env) env))
-        (pass-st)
-        (break-st)
-        (continue-st)
-        (print-st)))
+        (pass-st () (void))
+        ;(break-st)
+        ;(continue-st)
+        (print-st (vals) (display (value-of-atom (car vals) env)))
+        (else (void))))
     )
 
   ;(define value-of-return
@@ -43,8 +49,8 @@
   (define value-of-compound-st
     (lambda (st env)
       (cases compound-st st
-        (function-def-st (func) (value-of-func func))
-        (if-st (exp true-stmts false-stmts) (if (value-of-exp exp env) (value-of-stmts true-stmts env) (value-of-stmts flase-stmts env)))
+        (function-def-st (func) (value-of-fun func))
+        (if-st (exp true-stmts false-stmts) (if (value-of-exp exp env) (value-of-stmts true-stmts env) (value-of-stmts false-stmts env)))
         (for-st (id exp stmts) (value-of-for id exp stmts env))))
     )
 
@@ -55,22 +61,9 @@
 
   (define value-of-fun
     (lambda (func)
-      (cases func
-        (function-no-input (id stmts env) (set! global-env (extend-env id (newref func) global-env))
-        (function-with-input (id params sts env) (set! global-env (extend-env id (newref func) global-env)))))))
-
-  
-        
-
-
-
-        
-
- 
-  
-                            
-                                   
-
+      (cases function-datatype func
+        (function-no-input (id stmts env) (set! global-env (extend-env id (newref func) global-env)))
+        (function-with-input (id params sts env) (set! global-env (extend-env id (newref func) global-env))))))
  
   (define value-of-exp
     (lambda (exp env)
@@ -81,12 +74,12 @@
     (lambda (dis env)
       (cases disjunction dis
         (disjunction-base (con) (value-of-con con env))
-        (disjuction-or (con dis) (or (value-of-dis dis env) (value-of-con con env))))))
+        (disjunction-or (con dis) (or (value-of-dis dis env) (value-of-con con env))))))
 
   (define value-of-con
     (lambda (con env)
       (cases conjunction con
-        (conjuction-base (inv) (value-of-inv inv env))
+        (conjunction-base (inv) (value-of-inv inv env))
         (conjunction-and (con inv) (and (value-of-inv inv env) (value-of-con con env))))))
 
   (define value-of-inv
@@ -95,22 +88,37 @@
         (inversion-base (comp) (value-of-comp comp env))
         (inversion-not (inv) (not (value-of-inv inv) env)))))
 
-  
-
   (define value-of-comp
     (lambda (comp env)
       (cases comparison comp
         (comparison-compare (s com-op-sum-pairs) (cases compare-op-sum-pairs com-op-sum-pairs
                                                    (compare-op-sum-pairs-base (cosp)
                                                                               (cases compare-op-sum-pair cosp
-                                                                                (eq-sum (s2) (= (value-of-sum s env) (= (value-of-sum s2 env)))
-                                                                                        (lt-sum (s2) (< (= (value-of-sum s env) (= (value-of-sum s2 env)))
-                                                                                                        (gt-sum (s2) (> (= (value-of-sum s env) (= (value-of-sum s2 env)))))
-                                                                                                        (compare-op-sum-pairs-multi (car-cosp cdr-cosp) (cases compare-op-sum-pair car-cosp
-                                                                                                                                                          (eq-sum (s2) (= (= (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))
-                                                                                                                                                                  (lt-sum (s2) (< (= (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))
-                                                                                                                                                                          (gt-sum (s2) (> (= (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))))))))))))))
-        (comparison-base (s) (value-of-sum s env)))))                                         
+                                                                                (eq-sum (s2) (= (value-of-sum s env) (value-of-sum s2 env)))
+                                                                                (lt-sum (s2) (< (value-of-sum s env) (value-of-sum s2 env)))
+                                                                                (gt-sum (s2) (> (value-of-sum s env)  (value-of-sum s2 env)))))
+                                                   (compare-op-sum-pairs-multi (car-cosp cdr-cosp) (cases compare-op-sum-pair car-cosp
+                                                                                                     (eq-sum (s2) (=  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))
+                                                                                                     (lt-sum (s2) (<  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))
+                                                                                                     (gt-sum (s2) (>  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))))))
+      (comparison-base (s) (value-of-sum s env)))))
+  
+#|
+  (define value-of-comp
+    (lambda (comp env)
+      (cases comparison comp
+        (comparison-compare (s cosps) ())
+        (comparison-base (s) (value-of-sum s env)))))
+
+  (define value-of-compare-op-sum-pairs
+    (lambda (cosps env)
+      (cases compare-op-sum-pairs-base cosps
+        (compare-op-sum-pairs-base (cosp) (value-of-compare-op-sum-pair cosp env))
+        (compare-op-sum-pairs-multi (car-cosp cdr-cosp) ())
+        )
+      )
+    )
+|#
 
   (define value-of-sum
     (lambda (s-dt env)
@@ -122,13 +130,13 @@
   (define value-of-term
     (lambda (t env)
       (cases term t
-        (term-multiplication (tt tf)  (* (value-of-term t env) (value-of-factor f v)))
-        (term-division (tt tf)  (/ (value-of-term t env) (value-of-factor f env)))
-        (term-base (tf)   (value-of-factor f env)))))
+        (term-multiplication (tt tf)  (* (value-of-term tt env) (value-of-factor tf env)))
+        (term-division (tt tf)  (/ (value-of-term tt env) (value-of-factor tf env)))
+        (term-base (tf)   (value-of-factor tf env)))))
 
   
   (define value-of-factor
-    (lamda (f)
+    (λ (f)
            (cases factor f
              (factor-affirmation (ff) (value-of-factor ff))
              (factor-negation (ff) (- 0 (value-of-factor ff)))
@@ -144,24 +152,26 @@
   (define up-env-params
     (lambda (proc-params env)
       (cases params proc-params
-        (parmas-base (param) (cases param-with-defualt param
+        (params-base (param) (cases param-with-defualt param
                                (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp env)) env))))
         (params-multi (car-param cdr-param)  (up-env-params cdr-param (cases param-with-defualt car-param
                                                                         (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp (env))) env))) )))))
-
+  #|
   (define up-env-params-exps
     (lambda (proc-params exps env)
       (cases expression exps
         (expression-base (exp) (cases params proc-params)
 
                         ))))
-      
+    |#  
                                          
           
   (define call-no-input
     (lambda (function env)
       (cases function-datatype function
-        (function-no-input (fun-name  fun-stmts saved-env)  (value-of-stmts stmts saved-env))))) 
+        (function-no-input (fun-name  fun-stmts saved-env)  (value-of-stmts fun-stmts saved-env))
+        (else (void))))
+    ) 
       
 
   (define value-of-primary
@@ -170,10 +180,34 @@
         (primary-base (pa) (value-of-atom pa env))
         (primary-lst-index (pp pe) (list-ref (value-of-primary pp env) (value-of-exp pe env)))
         (primary-call-function-no-args (pp) (call-no-input (value-of-primary pp env)  env))
-        (primary-call-function (pp pa))
+        ;(primary-call-function (pp pa))
+        (else (void))
         )
       )
     )
-        
 
+  (define value-of-atom
+    (lambda (_atom env)
+      (cases atom _atom
+        (atom-identifier (id) (apply-env id env))
+        (atom-bool (val) val)
+        (atom-none () null)
+        (atom-number (val) val)
+        (atom-lst (val) (value-of-lst val))))
+    )
 
+  (define value-of-lst
+    (lambda (_lst env)
+      (cases lst _lst
+        (empty-lst () '())
+        (not-empty-lst (exps) (value-of-exps exps))))
+    )
+
+  (define value-of-exps
+    (lambda (_exps env)
+      (cases expressions _exps
+        (expressions-base (exp) (list (value-of-exp exp env)))
+        (expressions-multi (car-exp cdr-exp)
+                           (cons (value-of-exp car-exp env) (value-of-exps cdr-exp env)))))
+    )
+)
