@@ -221,4 +221,11 @@
      (car-exp expression?)
      (cdr-exp expressions?))
     )
+    
+  (define-datatype proc proc?
+    (py-proc
+     (proc-name symbol?)
+     (proc-params params?)
+     (proc-stmts statements?)
+     ))
   )
