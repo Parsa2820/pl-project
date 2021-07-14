@@ -168,10 +168,14 @@
   (define value-of-term
     (lambda (t env)
       (cases term t
-        (term-multiplication (tt tf)  (*pro (value-of-term tt env) (value-of-factor tf env)))
-        (term-division (tt tf)  (/ (value-of-term tt env) (value-of-factor tf env)))
+        (term-multiplication (tt tf)
+                             (let ((left (value-of-term tt env)))
+                               (if (or (equal? left 0) (equal? left #f))
+                                left
+                                (*pro left (value-of-factor tf env)))))
+        (term-division (tt tf)  (exact->inexact (/ (value-of-term tt env) (value-of-factor tf env))))
         (term-base (tf)   (value-of-factor tf env)))))
-
+  
   (define (*pro a b)
     (cond
       [(and (boolean? a) (boolean? b)) (and a b)]
