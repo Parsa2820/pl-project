@@ -34,7 +34,7 @@
   (define value-of-simple-st
     (lambda (st env)
       (cases simple-st st
-        (assignment-st (lhs rhs) (begin (set! global-env (extend-env lhs (newref (value-of-exp rhs global-env)) global-env)) ))
+        (assignment-st (lhs rhs) (begin (set! global-env (extend-env lhs (newref (value-of-exp rhs global-env)) global-env)) (display global-env)))
         ;(return-st) ;(return-type) (value-of-return-type return-type))
         (global-st (id) (extend-env id (apply-env id global-env) env))
         (pass-st () (void))
@@ -62,16 +62,17 @@
       (cases compound-st st
         (function-def-st (func) (value-of-fun func))
         (if-st (exp true-stmts false-stmts) (if (value-of-exp exp env) (value-of-stmts true-stmts env) (value-of-stmts false-stmts env)))
-        (for-st (id exp stmts) (value-of-for id (value-of-exp exp env) stmts env))))
+        (for-st (id exp stmts) (value-of-for id exp stmts env))))
     )
 
   (define value-of-for
-    (lambda (id expval stmts env) 
-      (if (null?  expval)
-          (void)
-          (begin
-            (value-of-stmts stmts (set! global-env (extend-env id (newref (car expval)) global-env)))
-            (value-of-for id (cdr expval) stmts env))))
+    (lambda (id exp stmts env)
+      (let ((expval (value-of-exp exp env)))
+          (if (null?  expval)
+              (void)
+              (begin
+                (value-of-for id (cdr expval) stmts env)
+                (value-of-stmts stmts (extend-env id (car expval) env))))))
     )
 
   (define value-of-fun
@@ -210,7 +211,7 @@
   (define value-of-atom
     (lambda (_atom env)
       (cases atom _atom
-        (atom-identifier (id)  (deref (apply-env id global-env)))
+        (atom-identifier (id) (begin (display env) (deref (apply-env id global-env))))
         (atom-bool (val) val)
         (atom-none () null)
         (atom-number (val) val)
