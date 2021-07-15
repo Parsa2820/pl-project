@@ -1,6 +1,7 @@
 (module interpreter racket
   
   (require (lib "eopl.ss" "eopl"))
+  (require "parser.rkt") 
   (require "datatype.rkt")
   (require "environment.rkt")
   (require "store.rkt")
@@ -15,6 +16,13 @@
       (cases program prgm
         (program-base (sts) (value-of-stmts sts global-env))))
     )
+
+#| TODO
+- return should be handled with flag, to stop prevent running following statements. Flag vanish at the end of function.
+- break is simular to the return, should be handled with flag. Flag vanish at the end of the for.
+- continue is simular to break, but flag will be reset after each loop.
+- all it left is function.
+|#
 
   (define value-of-stmts
     (lambda (stmts env)
@@ -57,9 +65,24 @@
       [(null? atoms-lst) (void)]
       [else
        (begin
-         (display (value-of-atom (car atoms-lst) env))
+         (print-atom (value-of-atom (car atoms-lst) env))
          (display " ")
          (print-atoms-lst (cdr atoms-lst) env))])
+    )
+
+  (define (print-atom a)
+    (cond
+      [(list? a) (begin (display "[") (print-atom-lst a) (display "]"))]
+      [(boolean? a) (if a (display "True") (display "False"))]
+      [else (display a)]
+      )
+    )
+
+  (define (print-atom-lst lst)
+    (if (null? lst)
+        (void)
+        (begin
+          (print-atom (car lst)) (if (null? (cdr lst)) (void) (display ", ")) (print-atom-lst (cdr lst))))              
     )
 
   ;(define value-of-return
@@ -142,7 +165,7 @@
                                                                                                      (gt-sum (s2) (>  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))))))
         (comparison-base (s) (value-of-sum s env)))))
   
-  #|
+ 
   (define value-of-comp
     (lambda (comp env)
       (cases comparison comp
@@ -156,23 +179,41 @@
         (compare-op-sum-pairs-multi (car-cosp cdr-cosp) ())
         )
       )
+      (comparison-base (s) (value-of-sum s env)))
     )
-|#
 
   (define value-of-sum
     (lambda (s-dt env)
       (cases sum s-dt
-        (sum-add (s t) (+ (value-of-sum s env) (value-of-term t env) ))
+        (sum-add (s t) (+pro (value-of-sum s env) (value-of-term t env) ))
         (sum-subtract (s t) (- (value-of-sum s env) (value-of-term t env) ) )         
         (sum-base (t) (value-of-term t env)))))
+
+  (define (+pro a b)
+    (cond
+      [(and (boolean? a) (boolean? b)) (or a b)]
+      [(and (number? a) (number? b)) (+ a b)]
+      [(and (list? a) (list? b)) (append a b)]
+      )
+    )
 
   (define value-of-term
     (lambda (t env)
       (cases term t
-        (term-multiplication (tt tf)  (* (value-of-term tt env) (value-of-factor tf env)))
-        (term-division (tt tf)  (/ (value-of-term tt env) (value-of-factor tf env)))
+        (term-multiplication (tt tf)
+                             (let ((left (value-of-term tt env)))
+                               (if (or (equal? left 0) (equal? left #f))
+                                left
+                                (*pro left (value-of-factor tf env)))))
+        (term-division (tt tf)  (exact->inexact (/ (value-of-term tt env) (value-of-factor tf env))))
         (term-base (tf)   (value-of-factor tf env)))))
-
+  
+  (define (*pro a b)
+    (cond
+      [(and (boolean? a) (boolean? b)) (and a b)]
+      [(and (number? a) (number? b)) (* a b)]
+      )
+    )
   
   (define value-of-factor
     (λ (f env)
@@ -186,7 +227,6 @@
       (cases power p
         (power-pow (pa pf) (expt (value-of-atom pa env) (value-of-factor pf env)))
         (power-base (pprimary) (value-of-primary pprimary env)))))
-
 
   (define up-env-params
     (lambda (proc-params env)
@@ -208,16 +248,14 @@
         (expression-base (exp) (cases params proc-params)
 
                         ))))
-    |#  
-                                         
+    |#                                     
           
   (define call-no-input
     (lambda (function env)
       (cases function-datatype function
         (function-no-input (fun-name  fun-stmts saved-env)  (value-of-stmts fun-stmts saved-env))
         (else (void))))
-    ) 
-      
+    )       
 
   (define value-of-primary
     (lambda (pri env)
@@ -255,4 +293,16 @@
         (expressions-multi (car-exp cdr-exp)
                            (append (value-of-exps cdr-exp env) (list (value-of-exp car-exp env))))))
     )
-  )
+
+  (define (evaluate-file path)
+    (run (file->string path))
+    )
+
+  (define (run pgm-string)
+    (define py-lexer (lex-this python-lexer (open-input-string pgm-string)))
+    (begin (initialize-store!)
+           (let ((parser-res (python-parser py-lexer)))
+              (value-of-program parser-res))
+           )
+    )
+)
