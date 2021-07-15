@@ -39,13 +39,6 @@
         (program-base (sts) (value-of-stmts sts))))
     )
 
-#| TODO
-- return should be handled with flag, to stop prevent running following statements. Flag vanish at the end of function.
-- break is simular to the return, should be handled with flag. Flag vanish at the end of the for.
-- continue is simular to break, but flag will be reset after each loop.
-- all it left is function.
-|#
-
   (define value-of-stmts
     (lambda (stmts)
       (cases statements stmts      
@@ -69,7 +62,7 @@
         (pass-st () (void))
         (break-st () (value-of-break-st))
         (continue-st () (value-of-continue))
-        (print-st (vals) #|(begin (display current-env) (display the-store)|# (print-atoms-lst vals))
+        (print-st (vals) (print-atoms-lst vals))
         (else (void))))
     )
 
@@ -123,9 +116,6 @@
         (begin
           (print-atom (car lst)) (if (null? (cdr lst)) (void) (display ", ")) (print-atom-lst (cdr lst))))              
     )
-
-  ;(define value-of-return
-  
 
   (define value-of-compound-st
     (lambda (st)
@@ -211,24 +201,7 @@
                                                                                                      (gt-sum (s2) (>  (value-of-sum s) (value-of-comp (comparison-compare s2 cdr-cosp))))))))
         (comparison-base (s) (value-of-sum s))))
     )
-#| 
-  (define value-of-comp
-    (lambda (comp)
-      (cases comparison comp
-        (comparison-compare (s cosps) ())
-        (comparison-base (s) (value-of-sum s))))
-    )
 
-  (define value-of-compare-op-sum-pairs
-    (lambda (cosps)
-      (cases compare-op-sum-pairs-base cosps
-        (compare-op-sum-pairs-base (cosp) (value-of-compare-op-sum-pair cosp))
-        (compare-op-sum-pairs-multi (car-cosp cdr-cosp) ())
-        )
-      )
-      (comparison-base (s) (value-of-sum s))
-    )
-|#
   (define value-of-sum
     (lambda (s-dt)
       (cases sum s-dt
@@ -265,7 +238,7 @@
     )
   
   (define value-of-factor
-    (λ (f)
+    (lambda (f)
       (cases factor f
         (factor-affirmation (ff) (value-of-factor ff))
         (factor-negation (ff) (- 0 (value-of-factor ff)))
@@ -278,29 +251,7 @@
         (power-pow (pa pf) (expt (value-of-atom pa) (value-of-factor pf)))
         (power-base (pprimary) (value-of-primary pprimary))))
     )
-
-  (define up-env-params
-    (lambda (proc-params)
-      (cases params proc-params
-        (params-base (param) (up-env-param-with-default param))
-        (params-multi (car-param cdr-param)
-                      (up-env-params cdr-param (up-env-param-with-default car-param)))))
-    )
-
-  (define up-env-param-with-default
-    (lambda (param)
-      (cases param-with-defualt param
-        (param-with-defualt-base (id exp) (extend-env id (newref (value-of-exp exp)) current-env))))
-    )
-  #|
-  (define up-env-params-exps
-    (lambda (proc-params exps)
-      (cases expression exps
-        (expression-base (exp) (cases params proc-params)
-
-                        ))))
-    |#                                             
-
+  
   (define value-of-primary
     (lambda (pri)
       (cases primary pri
@@ -400,8 +351,6 @@
                               (value-of-stmt car-st)
                               (void)))))
     )
-
-;[(begin (display (deref (apply-env '@return current-env))) )
 
   (define value-of-atom
     (lambda (_atom)
