@@ -69,11 +69,11 @@
 
   (define (value-of-return-datatype return-type)
     (cases return-datatype return-type
-      (return-void () (begin (setref! (apply-env '@return current-env) #t) 0))
+      (return-void () (begin (setref! (apply-env '@return current-env) #t) (set! current-env (extend-env '@returnvalue (newref 0) current-env))))
       (return-exp (exp)
                   (begin
                     (setref! (apply-env '@return current-env) #t)
-                    (value-of-exp exp))))
+                    (set! current-env (extend-env '@returnvalue (newref (value-of-exp exp)) current-env)))))
     )
   
   (define value-of-break-st
@@ -306,13 +306,15 @@
         (function-no-input (name stmts saved-env)
                            (begin
                              (push-current-env-to-envs-stack-and-set-current-env (create-function-no-input-call-no-input-env name))
-                             (let ([return-value (value-of-func-stmts stmts)])
+                             (value-of-func-stmts stmts)
+                             (let ([return-value (deref (apply-env '@returnvalue current-env))])
                                (begin (pop-envs-stack-to-current-env) return-value))
                              ))
         (function-with-input (name parameters stmts saved-env)
                            (begin
                              (push-current-env-to-envs-stack-and-set-current-env (create-function-with-input-call-no-input-env name parameters))
-                             (let ([return-value (value-of-func-stmts stmts)])
+                             (value-of-func-stmts stmts)
+                             (let ([return-value (deref (apply-env '@returnvalue current-env))])
                                (begin (pop-envs-stack-to-current-env) return-value))
                              ))))
     )
@@ -323,8 +325,9 @@
         (function-with-input (name parameters stmts saved-env)
                            (begin
                              (push-current-env-to-envs-stack-and-set-current-env (create-function-with-input-call-with-input-env name parameters args))
-                             (let ([return-value (value-of-func-stmts stmts)])
-                               (begin (pop-envs-stack-to-current-env) return-value))
+                             (value-of-func-stmts stmts)
+                             (let ([return-value (deref (apply-env '@returnvalue current-env))])
+                               (begin (pop-envs-stack-to-current-env) return-value))                           
                              ))
         (else (void))))
     )
@@ -375,17 +378,17 @@
     )
 
   (define (value-of-func-stmts stmts)
-    (cond
-      [(not (deref (apply-env '@return current-env))) (value-of-stmts stmts)])
+    (cases statements stmts      
+      (statements-base (st) (value-of-stmt st))
+      (statements-multi (car-st cdr-st)
+                        (begin
+                          (value-of-func-stmts cdr-st)
+                          (if (not (deref (apply-env '@return current-env)))
+                              (value-of-stmt car-st)
+                              (void)))))
     )
-  #|
-  (define call-with-input
-    (lambda (function params)
-      (cases function-datatype function
-        (function-with-input (fun-name  fun-stmts saved-env)  (value-of-stmts fun-stmts saved-env))
-        (else (void))))
-    )
-  |#
+
+;[(begin (display (deref (apply-env '@return current-env))) )
 
   (define value-of-atom
     (lambda (_atom)
