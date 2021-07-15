@@ -11,6 +11,12 @@
   (define envs-stack (list))
   (define current-env (empty-env))
 
+  (define (initialize-envs!)
+    (begin
+      (set! envs-stack (list))
+      (set! current-env (empty-env)))
+    )
+
   (define (get-global-env-val)
     (list-ref envs-stack (- (length envs-stack) 1))
     )
@@ -57,7 +63,7 @@
   (define value-of-simple-st
     (lambda (st)
       (cases simple-st st
-        (assignment-st (lhs rhs) (begin (set! current-env (extend-env lhs (newref (value-of-exp rhs)) current-env))))
+        (assignment-st (lhs rhs) (value-of-assignment-st lhs rhs))
         (return-st (return-type) (value-of-return-datatype return-type))
         (global-st (id) (set! current-env (extend-env id (apply-env id (get-global-env-val)) current-env)))
         (pass-st () (void))
@@ -65,6 +71,13 @@
         (continue-st () (value-of-continue))
         (print-st (vals) #|(begin (display current-env) (display the-store)|# (print-atoms-lst vals))
         (else (void))))
+    )
+
+  (define (value-of-assignment-st lhs rhs)
+    (let ([reference (apply-env lhs current-env)])
+      (if (null? reference)
+          (set! current-env (extend-env lhs (newref (value-of-exp rhs)) current-env))
+          (setref! reference (value-of-exp rhs))))
     )
 
   (define (value-of-return-datatype return-type)
@@ -422,6 +435,7 @@
   (define (run pgm-string)
     (define py-lexer (lex-this python-lexer (open-input-string pgm-string)))
     (begin (initialize-store!)
+           (initialize-envs!)
            (let ((parser-res (python-parser py-lexer)))
               (value-of-program parser-res))
            )

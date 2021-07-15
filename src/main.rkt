@@ -34,4 +34,6 @@
   (evaluate-file "../sample/fib.rktpy")
   (displayln "")
   (evaluate-file "../sample/return.rktpy")
+  (displayln "")
+  (evaluate-file "../sample/global.rktpy")
   )            

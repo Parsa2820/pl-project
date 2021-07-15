@@ -1,0 +1,17 @@
+a = 5;
+
+def f():
+	global a;
+	print(a);
+	a = 10;
+	return;
+;
+
+def g():
+	global f;
+	b = f();
+	return;
+;
+
+c = g();
+print(a);
