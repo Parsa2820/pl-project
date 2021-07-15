@@ -1,5 +1,6 @@
-def f():
+def f(x=3): 
 	a = 3;
+	print(x);
 	if a == 3:
 		print(7);
 	else:

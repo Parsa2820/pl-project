@@ -311,15 +311,31 @@
                              ))
         (function-with-input (name parameters stmts saved-env)
                            (begin
-                             (push-current-env-to-envs-stack-and-set-current-env (extended-env '@return (newref #f) (empty-env)))
+                             (push-current-env-to-envs-stack-and-set-current-env (create-function-with-input-call-no-input-env name parameters))
                              (let ([return-value (value-of-func-stmts stmts)])
                                (begin (pop-envs-stack-to-current-env) return-value))
-                             ))
-        ))
+                             ))))
     )
 
   (define (create-function-no-input-call-no-input-env name)
     (extend-env name (apply-env name current-env) (extended-env '@return (newref #f) (empty-env)))
+    )
+
+  (define (create-function-with-input-call-no-input-env name parameters)
+    (add-function-defualt-parameters-to-env parameters (create-function-no-input-call-no-input-env name))
+    )
+
+  (define (add-function-defualt-parameters-to-env parameters env)
+    (cases params parameters
+      (params-base (param) (add-function-defualt-parameter-to-env param env))
+      (params-multi (car-param cdr-param)
+                    (add-function-defualt-parameters-to-env cdr-param (add-function-defualt-parameter-to-env car-param env))))
+    )
+
+  (define (add-function-defualt-parameter-to-env parameter env)
+    (cases param-with-defualt parameter
+                     (param-with-defualt-base (id exp)
+                                              (extend-env id (newref (value-of-exp exp)) env)))
     )
 
   (define (value-of-func-stmts stmts)
