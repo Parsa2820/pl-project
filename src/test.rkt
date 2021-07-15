@@ -2,7 +2,7 @@
 
 (require "parser.rkt")
 
-(define my-lexer (lex-this python-lexer (open-input-string "a=[4,3,True];print(a,4); for i in a: b = i; print(b); ; print(b); pass; a = True * False; print(a);")))
+(define my-lexer (lex-this python-lexer (open-input-string "f();")))
 (my-lexer)
 (my-lexer)
 (my-lexer)

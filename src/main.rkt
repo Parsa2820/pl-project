@@ -9,8 +9,8 @@
     (run pgm-string)
     )
 
-  (main "a=[1,2,3,4]; for i in a: if i == 2: print(i); break; else: print(23);; print(999); ; for i in a: print(i);;")
-                          
+  (main "a=[1,2,3,4]; for i in a: if i == 2: print(i); continue; else: print(23);; print(999); ; for i in a: print(i);;")
+  (displayln "")                       
   (main "a=[4,3,True];print(a,4); for i in a: b = i; print(b); ; print(b); pass; a = True * False; print(a);")
   (displayln "")
   (main "l1=[1,2];l2=[3,4];l3=l1+l2;print(l3);")
@@ -26,4 +26,8 @@
   (main "a=5;if a == 6 : print(1);else:print(2);;")
   (displayln "")
   (evaluate-file "../sample/list.rktpy")
+  (displayln "")
+  (evaluate-file "../sample/for.rktpy")
+  (displayln "")
+  (evaluate-file "../sample/function.rktpy")
   )             

@@ -1,0 +1,6 @@
+def f():
+	print(7);
+	return 4;
+;
+res = f();
+print(res);

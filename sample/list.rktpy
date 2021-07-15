@@ -2,3 +2,5 @@ a = [1, False, 3];
 b = [4, True, [5, 6]];
 c = a + b;
 print(c);
+d = c[1];
+print(d);
