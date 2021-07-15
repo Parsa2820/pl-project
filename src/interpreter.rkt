@@ -122,7 +122,7 @@
       (cases compound-st st
         (function-def-st (func) (value-of-fun func))
         (if-st (exp true-stmts false-stmts) (if (value-of-exp exp) (value-of-stmts true-stmts) (value-of-stmts false-stmts)))
-        (for-st (id exp stmts) (begin (set! current-env (extend-env 'continue (newref #f) current-env)) (set! current-env (extend-env 'break (newref #f) current-env)) (value-of-for id (value-of-exp exp) stmts)))))
+        (for-st (id exp stmts) (begin (set! current-env (extend-env 'continue (newref #f) current-env)) (set! current-env (extend-env 'break (newref #f) current-env)) (value-of-for id (value-of-exp exp) stmts) (set! current-env (extend-env 'break (newref #f) current-env)) (set! current-env (extend-env 'continue (newref #f) current-env)) ))))
     )
 
   (define value-of-for
