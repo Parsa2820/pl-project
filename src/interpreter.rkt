@@ -18,10 +18,10 @@
 
   (define value-of-stmts
     (lambda (stmts env)
-      ;(if (and (deref (apply-env 'break)) (derref (apply-env 'continue)))
-          (cases statements stmts      
-            (statements-base (st) (value-of-stmt st env))
-            (statements-multi (car-st cdr-st) (begin (value-of-stmts cdr-st env) (value-of-stmt car-st env)))))
+      ; (if (and (deref (apply-env 'break)) (derref (apply-env 'continue)))
+      (cases statements stmts      
+        (statements-base (st) (value-of-stmt st env))
+        (statements-multi (car-st cdr-st) (begin (value-of-stmts cdr-st env) (value-of-stmt car-st env)))))
     )
        
   (define value-of-stmt
@@ -38,11 +38,19 @@
         ;(return-st) ;(return-type) (value-of-return-type return-type))
         (global-st (id) (extend-env id (apply-env id global-env) env))
         (pass-st () (void))
-        ;(break-st)
-        ;(continue-st)
-        (print-st (vals) (print-atoms-lst vals env))
+        (break-st () (value-of-break-st))
+        (continue-st () (value-of-continue))
+        (print-st (vals) #|(begin (display global-env) (display the-store)|# (print-atoms-lst vals env))
         (else (void))))
     )
+  
+  (define value-of-break-st
+    (lambda ()
+      (setref! (apply-env 'break global-env) #t )))
+
+  (define value-of-continue
+    (lambda ()
+      (setref! (apply-env 'continue global-env) #t )))
 
   (define (print-atoms-lst atoms-lst env)
     (cond
@@ -62,7 +70,7 @@
       (cases compound-st st
         (function-def-st (func) (value-of-fun func))
         (if-st (exp true-stmts false-stmts) (if (value-of-exp exp env) (value-of-stmts true-stmts env) (value-of-stmts false-stmts env)))
-        (for-st (id exp stmts) (value-of-for id (value-of-exp exp env) stmts env))))
+        (for-st (id exp stmts) (begin (set! global-env (extend-env 'continue (newref #f) global-env)) (set! global-env (extend-env 'break (newref #f) global-env)) (value-of-for id (value-of-exp exp env) stmts env)))))
     )
 
   (define value-of-for
@@ -70,15 +78,31 @@
       (if (null?  expval)
           (void)
           (begin
-            (value-of-stmts stmts (set! global-env (extend-env id (newref (car expval)) global-env)))
-            (value-of-for id (cdr expval) stmts env))))
+            (display (and (not (deref (apply-env 'break global-env))) (not (deref (apply-env 'continue global-env)))))
+            (if (not (deref (apply-env 'break global-env)))
+                (value-of-for-stmts stmts (begin (set! global-env (extend-env 'continue (newref #f) global-env))(set! global-env (extend-env id (newref (car expval)) global-env))))
+                (void))
+            (value-of-for id (cdr expval) stmts env))
+          ))
     )
+
+  (define value-of-for-stmts
+    (lambda (stmts env)
+      (cases statements stmts      
+        (statements-base (st) (value-of-stmt st env))
+        (statements-multi (car-st cdr-st) (begin (value-of-for-stmts cdr-st env) (begin (display (and (not (deref (apply-env 'break global-env))) (not (deref (apply-env 'continue global-env)))))
+                                                 (if (and (not (deref (apply-env 'break global-env))) (not (deref (apply-env 'continue global-env))))
+                                                     (value-of-stmt car-st env)
+                                                 (void))))
+        ))))
+      
 
   (define value-of-fun
     (lambda (func)
       (cases function-datatype func
         (function-no-input (id stmts env) (set! global-env (extend-env id (newref func) global-env)))
-        (function-with-input (id params sts env) (set! global-env (extend-env id (newref func) global-env))))))
+        (function-with-input (id params sts env) (set! global-env (extend-env id (newref func) global-env)))))
+    )
  
   (define value-of-exp
     (lambda (exp env)
@@ -116,9 +140,9 @@
                                                                                                      (eq-sum (s2) (=  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))
                                                                                                      (lt-sum (s2) (<  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))
                                                                                                      (gt-sum (s2) (>  (value-of-sum s env) (value-of-comp (comparison-compare s2 cdr-cosp) env)))))))
-      (comparison-base (s) (value-of-sum s env)))))
+        (comparison-base (s) (value-of-sum s env)))))
   
-#|
+  #|
   (define value-of-comp
     (lambda (comp env)
       (cases comparison comp
@@ -152,10 +176,10 @@
   
   (define value-of-factor
     (λ (f env)
-           (cases factor f
-             (factor-affirmation (ff) (value-of-factor ff env))
-             (factor-negation (ff) (- 0 (value-of-factor ff env)))
-             (factor-base (fp) (value-of-power fp env)))))
+      (cases factor f
+        (factor-affirmation (ff) (value-of-factor ff env))
+        (factor-negation (ff) (- 0 (value-of-factor ff env)))
+        (factor-base (fp) (value-of-power fp env)))))
 
   (define value-of-power
     (lambda (p env)
@@ -231,4 +255,4 @@
         (expressions-multi (car-exp cdr-exp)
                            (append (value-of-exps cdr-exp env) (list (value-of-exp car-exp env))))))
     )
-)
+  )

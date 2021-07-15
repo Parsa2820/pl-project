@@ -16,5 +16,5 @@
            )
     )
 
-  (run "a=[4,3,True];print(a,4); for i in a: b = i; print(b); ; print(b); pass; a = 6; print(a);")
+  (run "a=[1,2,3,4]; for i in a: if i == 2: print(i); break; else: print(23);; print(999); ; for i in a: print(i);;")
   )                           
