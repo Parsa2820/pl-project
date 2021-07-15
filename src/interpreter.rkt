@@ -305,11 +305,21 @@
       (cases function-datatype function
         (function-no-input (name stmts saved-env)
                            (begin
+                             (push-current-env-to-envs-stack-and-set-current-env (create-function-no-input-call-no-input-env name))
+                             (let ([return-value (value-of-func-stmts stmts)])
+                               (begin (pop-envs-stack-to-current-env) return-value))
+                             ))
+        (function-with-input (name parameters stmts saved-env)
+                           (begin
                              (push-current-env-to-envs-stack-and-set-current-env (extended-env '@return (newref #f) (empty-env)))
                              (let ([return-value (value-of-func-stmts stmts)])
                                (begin (pop-envs-stack-to-current-env) return-value))
                              ))
-        (function-with-input (name parameters stmts saved-env) (void))))
+        ))
+    )
+
+  (define (create-function-no-input-call-no-input-env name)
+    (extend-env name (apply-env name current-env) (extended-env '@return (newref #f) (empty-env)))
     )
 
   (define (value-of-func-stmts stmts)

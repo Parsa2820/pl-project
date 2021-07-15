@@ -1,5 +1,10 @@
 def f():
-	print(7);
+	a = 3;
+	if a == 3:
+		print(7);
+	else:
+		pass;
+	;
 	return 4;
 ;
 res = f();
