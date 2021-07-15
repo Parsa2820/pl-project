@@ -294,7 +294,7 @@
         (primary-base (pa) (value-of-atom pa))
         (primary-lst-index (pp pe) (list-ref (value-of-primary pp) (value-of-exp pe)))
         (primary-call-function-no-args (pp) (call-no-input (value-of-primary pp) ))
-        ;(primary-call-function (pp pa) (call-no-input (value-of)))
+        (primary-call-function (pp pa) (call-with-input (value-of-primary pp) pa))
         (else (void))
         )
       )
@@ -317,6 +317,36 @@
                              ))))
     )
 
+  (define call-with-input
+    (lambda (function args)
+      (cases function-datatype function
+        (function-with-input (name parameters stmts saved-env)
+                           (begin
+                             (push-current-env-to-envs-stack-and-set-current-env (create-function-with-input-call-with-input-env name parameters args))
+                             (let ([return-value (value-of-func-stmts stmts)])
+                               (begin (pop-envs-stack-to-current-env) return-value))
+                             ))
+        (else (void))))
+    )
+
+  (define (create-function-with-input-call-with-input-env name parameters args)
+    (add-function-arguments-to-env args parameters (create-function-with-input-call-no-input-env name parameters))
+    )
+
+  (define (add-function-arguments-to-env args parameters env)
+    (cases arguments args
+      (arguments-base (exp)
+                      (cases params parameters
+                        (params-base (param) (add-function-argument-to-env exp param env))
+                        (params-multi (car-param cdr-param)
+                                      (add-function-defualt-parameters-to-env cdr-param (add-function-argument-to-env exp car-param env)))))
+      (arguments-multi (car-arg cdr-arg)
+                       (cases params parameters                        
+                        (params-multi (car-param cdr-param)
+                                      (add-function-arguments-to-env cdr-arg cdr-param (add-function-argument-to-env car-arg car-param env)))
+                        (else (void)))))
+    )
+
   (define (create-function-no-input-call-no-input-env name)
     (extend-env name (apply-env name current-env) (extended-env '@return (newref #f) (empty-env)))
     )
@@ -336,6 +366,12 @@
     (cases param-with-defualt parameter
                      (param-with-defualt-base (id exp)
                                               (extend-env id (newref (value-of-exp exp)) env)))
+    )
+
+  (define (add-function-argument-to-env arg-exp parameter env)
+    (cases param-with-defualt parameter
+                     (param-with-defualt-base (id exp)
+                                              (extend-env id (newref (value-of-exp arg-exp)) env)))
     )
 
   (define (value-of-func-stmts stmts)

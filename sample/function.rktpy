@@ -8,5 +8,5 @@ def f(x=3):
 	;
 	return 4;
 ;
-res = f();
+res = f(2);
 print(res);
