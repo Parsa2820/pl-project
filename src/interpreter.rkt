@@ -69,8 +69,8 @@
   (define (value-of-assignment-st lhs rhs)
     (let ([reference (apply-env lhs current-env)])
       (if (null? reference)
-          (set! current-env (extend-env lhs (newref (value-of-exp rhs)) current-env))
-          (setref! reference (value-of-exp rhs))))
+          (set! current-env (extend-env lhs (newref (identifier-datatype-lazy rhs current-env)) current-env))
+          (setref! reference (identifier-datatype-lazy rhs current-env))))
     )
 
   (define (value-of-return-datatype return-type)
@@ -122,17 +122,24 @@
       (cases compound-st st
         (function-def-st (func) (value-of-fun func))
         (if-st (exp true-stmts false-stmts) (if (value-of-exp exp) (value-of-stmts true-stmts) (value-of-stmts false-stmts)))
-        (for-st (id exp stmts) (begin (set! current-env (extend-env 'continue (newref #f) current-env)) (set! current-env (extend-env 'break (newref #f) current-env)) (value-of-for id (value-of-exp exp) stmts) (set! current-env (extend-env 'break (newref #f) current-env)) (set! current-env (extend-env 'continue (newref #f) current-env)) ))))
+        (for-st (id exp stmts) (begin
+                                 (set! current-env (extend-env 'continue (newref #f) current-env))
+                                 (set! current-env (extend-env 'break (newref #f) current-env))
+                                 (value-of-for id (value-of-exp exp) stmts)
+                                 (set! current-env (extend-env 'break (newref #f) current-env))
+                                 (set! current-env (extend-env 'continue (newref #f) current-env))))))
     )
 
   (define value-of-for
     (lambda (id expval stmts) 
       (if (null?  expval)
           (void)
-          (begin
-            ;(display (and (not (deref (apply-env 'break current-env))) (not (deref (apply-env 'continue current-env)))))
+          (begin          
             (if (not (deref (apply-env 'break current-env)))
-                (begin (set! current-env (extend-env 'continue (newref #f) current-env)) (set! current-env (extend-env id (newref (car expval)) current-env)) (value-of-for-stmts stmts))
+                (begin
+                  (set! current-env (extend-env 'continue (newref #f) current-env))
+                  (set! current-env (extend-env id (newref (identifier-datatype-value (car expval))) current-env))
+                  (value-of-for-stmts stmts))
                 (void))
             (value-of-for id (cdr expval) stmts))
           ))
@@ -143,20 +150,18 @@
       (cases statements stmts      
         (statements-base (st) (value-of-stmt st))
         (statements-multi (car-st cdr-st) (begin
-                                            (value-of-for-stmts cdr-st)
-                                            (begin
-                                              ;(display (and (not (deref (apply-env 'break current-env))) (not (deref (apply-env 'continue current-env)))))
-                                              (if (and (not (deref (apply-env 'break current-env))) (not (deref (apply-env 'continue current-env))))
-                                                  (value-of-stmt car-st)
-                                                  (void)))))))
+                                            (value-of-for-stmts cdr-st)                                                                              
+                                            (if (and (not (deref (apply-env 'break current-env))) (not (deref (apply-env 'continue current-env))))
+                                                (value-of-stmt car-st)
+                                                (void))))))
     )
       
   (define value-of-fun
     (lambda (func)
       (cases function-datatype func
         ; saved-env is redundant and shouldn't be used
-        (function-no-input (id stmts saved-env) (set! current-env (extend-env id (newref func) current-env)))
-        (function-with-input (id params sts saved-env) (set! current-env (extend-env id (newref func) current-env)))))
+        (function-no-input (id stmts saved-env) (set! current-env (extend-env id (newref (identifier-datatype-value func)) current-env)))
+        (function-with-input (id params sts saved-env) (set! current-env (extend-env id (newref (identifier-datatype-value func)) current-env)))))
     )
  
   (define value-of-exp
@@ -332,13 +337,13 @@
   (define (add-function-defualt-parameter-to-env parameter env)
     (cases param-with-defualt parameter
                      (param-with-defualt-base (id exp)
-                                              (extend-env id (newref (value-of-exp exp)) env)))
+                                              (extend-env id (newref (identifier-datatype-lazy exp current-env)) env)))
     )
 
   (define (add-function-argument-to-env arg-exp parameter env)
     (cases param-with-defualt parameter
                      (param-with-defualt-base (id exp)
-                                              (extend-env id (newref (value-of-exp arg-exp)) env)))
+                                              (extend-env id (newref (identifier-datatype-lazy arg-exp current-env)) env)))
     )
 
   (define (value-of-func-stmts stmts)
@@ -355,11 +360,20 @@
   (define value-of-atom
     (lambda (_atom)
       (cases atom _atom
-        (atom-identifier (id) (deref (apply-env id current-env)))
+        (atom-identifier (id) (value-of-identifier-datatype (deref (apply-env id current-env))))
         (atom-bool (val) val)
         (atom-none () null)
         (atom-number (val) val)
         (atom-lst (val) (value-of-lst val))))
+    )
+
+  (define (value-of-identifier-datatype id-datatype)
+    (cases identifier-datatype id-datatype
+      (identifier-datatype-value (val) val)
+      (identifier-datatype-lazy (exp saved-env) (begin
+                                        (push-current-env-to-envs-stack-and-set-current-env saved-env)
+                                        (let ([val (value-of-exp exp)])
+                                          (begin (pop-envs-stack-to-current-env) val)))))
     )
 
   (define value-of-lst

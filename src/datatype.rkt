@@ -225,4 +225,12 @@
      (car-exp expression?)
      (cdr-exp expressions?))
     )
+
+  (define-datatype identifier-datatype identifier-datatype?
+    (identifier-datatype-value
+     (val (lambda (x) #t)))
+    (identifier-datatype-lazy
+     (exp expression?)
+     (saved-env environment?))
+    )
   )

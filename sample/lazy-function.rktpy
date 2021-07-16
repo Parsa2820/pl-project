@@ -1,0 +1,7 @@
+def f(a=5):
+	print(a);
+	return;
+;
+
+a = f()+1;
+print(a);
