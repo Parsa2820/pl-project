@@ -26,7 +26,7 @@
   (displayln "")
   (evaluate-file "../sample/function.rktpy")
   (displayln "")
-  ;(evaluate-file "../sample/fib.rktpy")
+  (evaluate-file "../sample/fib.rktpy")
   (displayln "")
   (evaluate-file "../sample/return.rktpy")
   (displayln "")
@@ -113,5 +113,5 @@
   (evaluate-file "../sample/fib.rktpy")
   )
 
-;(test-interpreter)
+(test-interpreter)
 (test-lazy)
