@@ -1,0 +1,12 @@
+def length(lst = []):
+	len = 0;
+	for i in lst:
+		len = len + 1;
+	;
+	return len;
+;
+
+a = length([1, 2, 3, 4]);
+print(a);
+b = length([True, False, 1, 2, [1, 2]]);
+print(b);
