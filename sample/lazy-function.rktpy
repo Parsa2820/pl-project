@@ -3,5 +3,4 @@ def f(a=5):
 	return;
 ;
 
-a = f()+1;
-print(a);
+a = f();
