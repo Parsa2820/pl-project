@@ -31,6 +31,9 @@
   (evaluate-file "../sample/return.rktpy")
   (displayln "")
   (evaluate-file "../sample/global.rktpy")
+  (displayln "")
+  (evaluate-file "../sample/list-utils.rktpy")
+  (displayln "")
   )
 
 (define (test-lexer)
@@ -110,8 +113,14 @@
   )
 
 (define (test-lazy)
-  (evaluate-file "../sample/fib.rktpy")
+  (evaluate-file "../sample/lazy-function.rktpy")
+  (displayln "")
   )
 
-(test-interpreter)
-(test-lazy)
+;(test-interpreter)
+;(test-lazy)
+
+(run "def f():print(111); return;; a = f; b = a(); print(b);")
+
+  ;(evaluate-file "../sample/global.rktpy")
+  (displayln "")

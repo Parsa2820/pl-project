@@ -58,7 +58,10 @@
       (cases simple-st st
         (assignment-st (lhs rhs) (value-of-assignment-st lhs rhs))
         (return-st (return-type) (value-of-return-datatype return-type))
-        (global-st (id) (set! current-env (extend-env id (apply-env id (get-global-env-val)) current-env)))
+        (global-st (id)
+                   (begin (displayln 'global-st-call) (set! current-env
+                         (extended-env (symbol-append '@global- id) (apply-env id (get-global-env-val))
+                                       (extend-env id (apply-env id (get-global-env-val)) current-env)))))
         (pass-st () (void))
         (break-st () (value-of-break-st))
         (continue-st () (value-of-continue))
@@ -67,10 +70,11 @@
     )
 
   (define (value-of-assignment-st lhs rhs)
-    (let ([reference (apply-env lhs current-env)])
-      (if (null? reference)
+    (let ([global-ref (apply-env (symbol-append '@global- lhs) current-env)])
+      (if (begin (display current-env) (null? global-ref))
           (set! current-env (extend-env lhs (newref (identifier-datatype-lazy rhs current-env)) current-env))
-          (setref! reference (identifier-datatype-lazy rhs current-env))))
+          (begin (display 'salam) (setref! global-ref (identifier-datatype-lazy rhs current-env)))
+          ))
     )
 
   (define (value-of-return-datatype return-type)
@@ -367,10 +371,12 @@
         (atom-lst (val) (value-of-lst val))))
     )
 
+  (define debug-exit 0)
+
   (define (value-of-identifier-datatype id-datatype)
     (cases identifier-datatype id-datatype
       (identifier-datatype-value (val) val)
-      (identifier-datatype-lazy (exp saved-env) (begin
+      (identifier-datatype-lazy (exp saved-env) (begin ;(display exp) (display saved-env) ;(if (equal? 2 debug-exit) (exit) (void)) (set! debug-exit (+ 1 debug-exit))
                                         (push-current-env-to-envs-stack-and-set-current-env saved-env)
                                         (let ([val (value-of-exp exp)])
                                           (begin (pop-envs-stack-to-current-env) val)))))
@@ -389,6 +395,10 @@
         (expressions-base (exp) (list (value-of-exp exp)))
         (expressions-multi (car-exp cdr-exp)
                            (append (value-of-exps cdr-exp) (list (value-of-exp car-exp))))))
+    )
+
+  (define (symbol-append sym1 sym2)
+    (string->symbol (string-append (symbol->string sym1) (symbol->string sym2)))
     )
 
   (define (evaluate-file path)
