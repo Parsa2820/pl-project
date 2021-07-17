@@ -120,7 +120,7 @@
 ;(test-interpreter)
 ;(test-lazy)
 
-(run "def f():print(111); return;; a = f; b = a(); print(b);")
+(run "a=None; print(a);")
 
-  ;(evaluate-file "../sample/global.rktpy")
-  (displayln "")
+;(evaluate-file "../sample/global.rktpy")
+(displayln "")

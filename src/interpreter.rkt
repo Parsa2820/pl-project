@@ -108,6 +108,7 @@
 
   (define (print-atom a)
     (cond
+      [(equal? a 'None) (display "None")]
       [(list? a) (begin (display "[") (print-atom-lst a) (display "]"))]
       [(boolean? a) (if a (display "True") (display "False"))]
       [else (display a)]
@@ -366,7 +367,7 @@
       (cases atom _atom
         (atom-identifier (id) (value-of-identifier-datatype (deref (apply-env id current-env))))
         (atom-bool (val) val)
-        (atom-none () null)
+        (atom-none () 'None)
         (atom-number (val) val)
         (atom-lst (val) (value-of-lst val))))
     )
