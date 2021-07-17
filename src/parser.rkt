@@ -29,7 +29,7 @@
       (token-NUM (string->number lexeme)))
      ("True" (token-BOOLEAN #t))
      ("False" (token-BOOLEAN #f))
-     ("NONE" (token-NONE))
+     ("None" (token-NONE))
      ("==" (string->symbol lexeme))
      (">" (string->symbol lexeme))
      ("<" (string->symbol lexeme))

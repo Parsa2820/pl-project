@@ -31,6 +31,9 @@
   (evaluate-file "../sample/return.rktpy")
   (displayln "")
   (evaluate-file "../sample/global.rktpy")
+  (displayln "")
+  (evaluate-file "../sample/list-utils.rktpy")
+  (displayln "")
   )
 
 (define (test-lexer)
@@ -109,4 +112,15 @@
   (my-lexer)
   )
 
-(test-interpreter)
+(define (test-lazy)
+  (evaluate-file "../sample/lazy-function.rktpy")
+  (displayln "")
+  )
+
+;(test-interpreter)
+;(test-lazy)
+
+(run "a=None; print(a);")
+
+(evaluate-file "../sample/list-utils.rktpy")
+(displayln "")
