@@ -10,3 +10,20 @@ a = length([1, 2, 3, 4]);
 print(a);
 b = length([True, False, 1, 2, [1, 2]]);
 print(b);
+
+def max(lst = []):
+	m = -1;
+	for i in lst:
+		if i > m:
+			m = i;
+		else:
+			pass;
+		;
+	;
+	return m;
+;
+
+c = max([1, 2, 12, 3, 4, 34, 43, 21]);
+print(c);
+
+

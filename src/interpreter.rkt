@@ -71,9 +71,9 @@
 
   (define (value-of-assignment-st lhs rhs)
     (let ([global-ref (apply-env (symbol-append '@global- lhs) current-env)])
-      (if (begin (display current-env) (null? global-ref))
+      (if (begin #|(display current-env)|# (null? global-ref))
           (set! current-env (extend-env lhs (newref (identifier-datatype-lazy rhs current-env)) current-env))
-          (begin (display 'salam) (setref! global-ref (identifier-datatype-lazy rhs current-env)))
+          (begin #|(display 'salam)|# (setref! global-ref (identifier-datatype-lazy rhs current-env)))
           ))
     )
 

@@ -122,5 +122,5 @@
 
 (run "a=None; print(a);")
 
-;(evaluate-file "../sample/global.rktpy")
+(evaluate-file "../sample/list-utils.rktpy")
 (displayln "")
