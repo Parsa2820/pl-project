@@ -1,0 +1,27 @@
+
+
+def binarySearch(lst=[] , searchValue = 0  , begin = 0 , end = 0):
+    mid =  end/2 - begin/2 + begin;
+    if begin == end:
+        if lst[begin] == searchValue:
+            return begin;
+        else:
+            return -99999;
+        ;
+    else:
+        if lst[mid] == searchValue:
+            return mid;
+        else:
+            if lst[mid] < searchValue:
+                return binarySearch(lst , searchValue , mid , end );
+            else:
+                return binarySearch(lst , searchValue , begin , mid);
+            ;
+        ;
+    ;
+    return -1;
+;
+
+a = binarySearch([1 , 2 , 23 , 89 , 90] , 89 , 0 , 4);
+print(a);
+    

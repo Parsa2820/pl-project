@@ -23,7 +23,28 @@ def max(lst = []):
 	return m;
 ;
 
+def min(lst=[]):
+	m = 0;
+	global length;
+	if length(lst) == 0:
+		return 0;
+	else:
+		m = lst[0];
+	;
+	for i in lst:
+		if i < m:
+			m = i;
+		else:
+			pass;
+		;
+	;
+	return m;
+
+;
+
 c = max([1, 2, 12, 3, 4, 34, 43, 21]);
+print(c);
+c = min([-9 , -29 , 18 , 28 ,492]);
 print(c);
 
 

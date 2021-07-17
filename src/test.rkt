@@ -117,10 +117,14 @@
   (displayln "")
   )
 
+
+
 ;(test-interpreter)
 ;(test-lazy)
 
-(run "a=None; print(a);")
+;(run "a=None; print(a);")
 
-(evaluate-file "../sample/list-utils.rktpy")
+(evaluate-file "../sample/binary-search.rktpy")
 (displayln "")
+
+;(evaluate-file "../sample/for.rktpy")

@@ -88,12 +88,12 @@
   
   (define value-of-break-st
     (lambda ()
-      (setref! (apply-env 'break current-env) #t))
+      (setref! (apply-env '@break current-env) #t))
     )
 
   (define value-of-continue
     (lambda ()
-      (setref! (apply-env 'continue current-env) #t ))
+      (setref! (apply-env '@continue current-env) #t ))
     )
 
   (define (print-atoms-lst atoms-lst)
@@ -128,11 +128,11 @@
         (function-def-st (func) (value-of-fun func))
         (if-st (exp true-stmts false-stmts) (if (value-of-exp exp) (value-of-stmts true-stmts) (value-of-stmts false-stmts)))
         (for-st (id exp stmts) (begin
-                                 (set! current-env (extend-env 'continue (newref #f) current-env))
-                                 (set! current-env (extend-env 'break (newref #f) current-env))
+                                 (set! current-env (extend-env '@continue (newref #f) current-env))
+                                 (set! current-env (extend-env '@break (newref #f) current-env))
                                  (value-of-for id (value-of-exp exp) stmts)
-                                 (set! current-env (extend-env 'break (newref #f) current-env))
-                                 (set! current-env (extend-env 'continue (newref #f) current-env))))))
+                                 (set! current-env (extend-env '@break (newref #f) current-env))
+                                 (set! current-env (extend-env '@continue (newref #f) current-env))))))
     )
 
   (define value-of-for
@@ -140,9 +140,9 @@
       (if (null?  expval)
           (void)
           (begin          
-            (if (not (deref (apply-env 'break current-env)))
+            (if (not (deref (apply-env '@break current-env)))
                 (begin
-                  (set! current-env (extend-env 'continue (newref #f) current-env))
+                  (set! current-env (extend-env '@continue (newref #f) current-env))
                   (set! current-env (extend-env id (newref (identifier-datatype-value (car expval))) current-env))
                   (value-of-for-stmts stmts))
                 (void))
@@ -156,7 +156,7 @@
         (statements-base (st) (value-of-stmt st))
         (statements-multi (car-st cdr-st) (begin
                                             (value-of-for-stmts cdr-st)                                                                              
-                                            (if (and (not (deref (apply-env 'break current-env))) (not (deref (apply-env 'continue current-env))))
+                                            (if (and (not (deref (apply-env '@break current-env))) (not (deref (apply-env '@continue current-env))))
                                                 (value-of-stmt car-st)
                                                 (void))))))
     )
@@ -266,7 +266,7 @@
     (lambda (pri)
       (cases primary pri
         (primary-base (pa) (value-of-atom pa))
-        (primary-lst-index (pp pe) (list-ref (value-of-primary pp) (value-of-exp pe)))
+        (primary-lst-index (pp pe) (list-ref (value-of-primary pp) (inexact->exact (value-of-exp pe))))
         (primary-call-function-no-args (pp) (call-no-input (value-of-primary pp) ))
         (primary-call-function (pp pa) (call-with-input (value-of-primary pp) pa))
         (else (void))
