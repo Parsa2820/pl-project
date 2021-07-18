@@ -34,6 +34,8 @@
   (displayln "")
   (evaluate-file "../sample/list-utils.rktpy")
   (displayln "")
+  (evaluate-file "../sample/binary-search.rktpy")
+  (displayln "")
   )
 
 (define (test-lexer)
@@ -119,12 +121,5 @@
 
 
 
-;(test-interpreter)
-;(test-lazy)
-
-;(run "a=None; print(a);")
-
-(evaluate-file "../sample/binary-search.rktpy")
-(displayln "")
-
-;(evaluate-file "../sample/for.rktpy")
+(test-interpreter)
+(test-lazy)

@@ -63,13 +63,11 @@
     (function-no-input
      (name symbol?)
      (sts statements?)
-     (saved-env environment?)
      )
     (function-with-input
      (name symbol?)
      (parameters params?)
-     (sts statements?)
-     (saved-env environment?)
+     (sts statements?)    
      )
     )
 

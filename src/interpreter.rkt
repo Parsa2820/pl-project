@@ -71,9 +71,9 @@
 
   (define (value-of-assignment-st lhs rhs)
     (let ([global-ref (apply-env (symbol-append '@global- lhs) current-env)])
-      (if (begin #|(display current-env)|# (null? global-ref))
+      (if (null? global-ref)
           (set! current-env (extend-env lhs (newref (identifier-datatype-lazy rhs current-env)) current-env))
-          (begin #|(display 'salam)|# (setref! global-ref (identifier-datatype-lazy rhs current-env)))
+          (setref! global-ref (identifier-datatype-lazy rhs current-env))
           ))
     )
 
@@ -163,10 +163,9 @@
       
   (define value-of-fun
     (lambda (func)
-      (cases function-datatype func
-        ; saved-env is redundant and shouldn't be used
-        (function-no-input (id stmts saved-env) (set! current-env (extend-env id (newref (identifier-datatype-value func)) current-env)))
-        (function-with-input (id params sts saved-env) (set! current-env (extend-env id (newref (identifier-datatype-value func)) current-env)))))
+      (cases function-datatype func       
+        (function-no-input (id stmts) (set! current-env (extend-env id (newref (identifier-datatype-value func)) current-env)))
+        (function-with-input (id params sts) (set! current-env (extend-env id (newref (identifier-datatype-value func)) current-env)))))
     )
  
   (define value-of-exp
@@ -277,14 +276,14 @@
   (define call-no-input
     (lambda (function)
       (cases function-datatype function
-        (function-no-input (name stmts saved-env)
+        (function-no-input (name stmts)
                            (begin
                              (push-current-env-to-envs-stack-and-set-current-env (create-function-no-input-call-no-input-env name))
                              (value-of-func-stmts stmts)
                              (let ([return-value (deref (apply-env '@returnvalue current-env))])
                                (begin (pop-envs-stack-to-current-env) return-value))
                              ))
-        (function-with-input (name parameters stmts saved-env)
+        (function-with-input (name parameters stmts)
                            (begin
                              (push-current-env-to-envs-stack-and-set-current-env (create-function-with-input-call-no-input-env name parameters))
                              (value-of-func-stmts stmts)
@@ -296,7 +295,7 @@
   (define call-with-input
     (lambda (function args)
       (cases function-datatype function
-        (function-with-input (name parameters stmts saved-env)
+        (function-with-input (name parameters stmts)
                            (begin
                              (push-current-env-to-envs-stack-and-set-current-env (create-function-with-input-call-with-input-env name parameters args))
                              (value-of-func-stmts stmts)
@@ -377,7 +376,7 @@
   (define (value-of-identifier-datatype id-datatype)
     (cases identifier-datatype id-datatype
       (identifier-datatype-value (val) val)
-      (identifier-datatype-lazy (exp saved-env) (begin ;(display exp) (display saved-env) ;(if (equal? 2 debug-exit) (exit) (void)) (set! debug-exit (+ 1 debug-exit))
+      (identifier-datatype-lazy (exp saved-env) (begin
                                         (push-current-env-to-envs-stack-and-set-current-env saved-env)
                                         (let ([val (value-of-exp exp)])
                                           (begin (pop-envs-stack-to-current-env) val)))))

@@ -4,7 +4,6 @@
            (prefix-in : parser-tools/lex-sre)
            parser-tools/yacc)
   (require "datatype.rkt")
-  (require "environment.rkt")
 
   (provide (all-defined-out))
 
@@ -19,11 +18,6 @@
   (define python-lexer
     (lexer
      (special-keyword  (string->symbol lexeme))
-     #| ; old identifier
-     ((:: (:& (:+ (char-range #\a #\z))
-              (:& (complement "True") (complement "not") (complement "False"))))
-      (token-ID (string->symbol lexeme)))
-     |#
      ((:: (:or (:+ (char-range #\0 #\9))
                (:: (:+ (char-range #\0 #\9)) #\. (:+ (char-range #\0 #\9)))))
       (token-NUM (string->number lexeme)))
@@ -121,8 +115,8 @@
        ((for ID in exp : sts) (for-st $2 $4 $6))
        )
       (function
-       ((def ID |(| params |)| : sts) (function-with-input $2 $4 $7 (empty-env)))
-       ((def ID |(| |)| : sts) (function-no-input $2 $6 (empty-env)))
+       ((def ID |(| params |)| : sts) (function-with-input $2 $4 $7))
+       ((def ID |(| |)| : sts) (function-no-input $2 $6))
        )
       (params
        ((ID = exp) (params-base (param-with-defualt-base $1 $3)))
