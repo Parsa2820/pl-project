@@ -1,7 +1,7 @@
 #|
 This module is some utilities for preventing lazy evaluation when side effect is possible.
 It is not added to assign-st because it isn't needed in this project.
-|#SS
+|#
 
 (module lazy-utils racket
 
