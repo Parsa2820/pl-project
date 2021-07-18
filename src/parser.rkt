@@ -1,8 +1,6 @@
 (module parser racket
 
-  (require parser-tools/lex
-           (prefix-in : parser-tools/lex-sre)
-           parser-tools/yacc)
+  (require parser-tools/lex (prefix-in : parser-tools/lex-sre) parser-tools/yacc)
   (require "datatype.rkt")
 
   (provide (all-defined-out))
@@ -196,7 +194,4 @@
       )
      )
     )
-
-  ;(define py-lexer-2 (lex-this python-lexer (open-input-string "a = 5; b =4;")))
-  ;(let ((parser-res (python-parser py-lexer-2))) parser-res)
   )

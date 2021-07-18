@@ -114,12 +114,15 @@
   (my-lexer)
   )
 
+(define (test-parser)
+  (define py-lexer-2 (lex-this python-lexer (open-input-string "a = 5; b =4;")))
+  (let ((parser-res (python-parser py-lexer-2))) parser-res)
+  )
+
 (define (test-lazy)
   (evaluate-file "../sample/lazy-function.rktpy")
   (displayln "")
   )
-
-
 
 (test-interpreter)
 (test-lazy)

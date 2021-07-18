@@ -6,10 +6,10 @@
   (provide (all-defined-out))
 
   (define-datatype environment environment?
-    [empty-env]
-    [extended-env [bvar symbol?]
-                [bval reference?]
-                [saved-env environment?]]
+    (empty-env)
+    (extended-env (bvar symbol?)
+                (bval reference?)
+                (saved-env environment?))
     )
 
   (define extend-env

@@ -46,4 +46,3 @@
               (setref-inner the-store ref))))
     )
   )
-  
