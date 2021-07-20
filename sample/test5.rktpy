@@ -1,0 +1,39 @@
+mylist = [True, [8, 4, 6], [None]];
+
+def f():
+    global mylist;
+    a = 0;
+    for i in mylist:
+        if i == True:
+            continue;
+        else:
+            pass;
+        ;
+        if i[0] == None:
+            break;
+        else:
+            continue;
+        ;
+        for j in i[1]:
+            a = a + j;
+        ;
+    ;
+    return -1;
+;
+
+
+def g(a = 4, b = 5):
+    global f;
+	print(a);
+    return f() + a + b;
+;
+
+a = g(5);
+print(a);
+
+mylist = [True, [6, 4, 6], [None]];
+if g(5) > g(7):
+    print(True);
+else:
+    pass;
+;

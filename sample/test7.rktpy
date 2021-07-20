@@ -1,0 +1,15 @@
+def f():
+    return 5 + 5;
+;
+
+def g():
+    global f;
+    def h():
+        return 10 ** 2 / 1 + 35 - 8.2;
+    ;
+	return h;
+;
+
+a = g();
+a = f();
+print(a);

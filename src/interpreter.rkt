@@ -201,11 +201,11 @@
         (comparison-compare (s com-op-sum-pairs) (cases compare-op-sum-pairs com-op-sum-pairs
                                                    (compare-op-sum-pairs-base (cosp)
                                                                               (cases compare-op-sum-pair cosp
-                                                                                (eq-sum (s2) (= (value-of-sum s) (value-of-sum s2)))
+                                                                                (eq-sum (s2) (equal? (value-of-sum s) (value-of-sum s2)))
                                                                                 (lt-sum (s2) (< (value-of-sum s) (value-of-sum s2)))
                                                                                 (gt-sum (s2) (> (value-of-sum s)  (value-of-sum s2)))))
                                                    (compare-op-sum-pairs-multi (car-cosp cdr-cosp) (cases compare-op-sum-pair car-cosp
-                                                                                                     (eq-sum (s2) (=  (value-of-sum s) (value-of-comp (comparison-compare s2 cdr-cosp))))
+                                                                                                     (eq-sum (s2) (equal?  (value-of-sum s) (value-of-comp (comparison-compare s2 cdr-cosp))))
                                                                                                      (lt-sum (s2) (<  (value-of-sum s) (value-of-comp (comparison-compare s2 cdr-cosp))))
                                                                                                      (gt-sum (s2) (>  (value-of-sum s) (value-of-comp (comparison-compare s2 cdr-cosp))))))))
         (comparison-base (s) (value-of-sum s))))

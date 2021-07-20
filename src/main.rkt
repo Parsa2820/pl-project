@@ -9,4 +9,6 @@
   (define (main-file pgm-file-path)
     (evaluate-file pgm-file-path)
     )
+
+  (main-file "../sample/test7.rktpy")
   )            
